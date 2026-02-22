@@ -1,0 +1,12 @@
+﻿@model IEnumerable<Models.Media>
+
+@foreach (var media in Model)
+{
+    <div class="mediaLayout">
+        <a href="/Medias/Details/@media.Id" title="Voir les détails de @media.Title" style="text-decoration:none; width:100% !important">
+            <div style="max-width:100%; font-size:0.8em; font-weight:bold" class="ellipsis">@media.Title</div>
+            <div class="mediaThumbnail" style="background-image:url('https://img.youtube.com/vi/@media.YoutubeId/mqdefault.jpg'); "></div>          
+            <div style="color:gray; font-size:0.6em">@media.Category</div>
+        </a>
+    </div>
+}

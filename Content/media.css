@@ -1,0 +1,60 @@
+.mediaListLayout {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    gap: 6px !important;
+}
+
+    .mediaListLayout a {
+        text-decoration: none;
+        cursor: pointer;
+        color: black;
+    }
+
+        .mediaListLayout a:hover {
+            background-color: aliceblue;
+        }
+
+@media screen and (max-width: 800px) {
+    .mediaListLayout {
+        grid-template-columns: 49.75% 49.75%;
+    }
+}
+
+@media screen and (max-width: 550px) {
+    .mediaListLayout {
+        grid-template-columns: 100%;
+    }
+}
+
+.mediaLayout {
+    width: 100% !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.2em;
+    color: black;
+}
+
+.mediaThumbnail {
+    width: 100% !important;
+    aspect-ratio: 16/9;
+    border-radius: 6px;
+    background-size: cover;
+    background-position: center;
+}
+
+.mediaThumbnailBig {
+    width: 100% !important;
+    aspect-ratio: 16/9;
+    border-radius: 6px;
+}
+
+.mediaPlayerBig {
+    aspect-ratio: 16/9;
+    width: 100% !important;
+    max-width: 800px !important;
+}
+
+.description {
+    font-size: 1em !important;
+}
