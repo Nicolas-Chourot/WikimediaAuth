@@ -3,16 +3,25 @@
 
 <div class="detailsPanel">
     <dl>
+
         <dd>
-            @Model.Title
+         
+            @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
+            {
+                <span style="color:grey">[Partagé]</span>
+            }
         </dd>
         <dd>
-<iframe class="mediaPlayerBig"
-        src="https://www.youtube.com/embed/@Model.YoutubeId"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen>
-</iframe>
+            @Model.Title
+           
+        </dd>
+        <dd>
+            <iframe class="mediaPlayerBig"
+                    src="https://www.youtube.com/embed/@Model.YoutubeId"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
         </dd>
         <dd class="description">
             @Model.Description
@@ -31,6 +40,13 @@
 
         <dd>
             @Model.PublishDate.ToLongDateString()
+        </dd>
+        <dt>
+            Ajouté par
+        </dt>
+
+        <dd>
+            @Helper.AvatarUser(Model.Owner)
         </dd>
 
     </dl>

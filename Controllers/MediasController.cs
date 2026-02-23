@@ -171,6 +171,7 @@ namespace Controllers
             Media Media = DB.Medias.Get(id);
             if (Media != null)
             {
+                ViewBag.IsOwner = Models.User.ConnectedUser.IsAdmin || Media.OwnerId == Models.User.ConnectedUser.Id;
                 Session["CurrentMediaTitle"] = Media.Title;
                 return View(Media);
             }
@@ -186,8 +187,9 @@ namespace Controllers
         [UserAccess(Models.Access.Write)]
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        public ActionResult Create(Media Media)
+        public ActionResult Create(Media Media, string sharedCB = "off")
         {
+            Media.Shared = sharedCB == "on";
             DB.Medias.Add(Media);
             return RedirectToAction("List");
         }
@@ -214,7 +216,7 @@ namespace Controllers
         [UserAccess(Models.Access.Write)]
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        public ActionResult Edit(Media Media)
+        public ActionResult Edit(Media Media, string sharedCB = "off")
         {
             // Has explained earlier, id of Media is stored server side an not provided in form data
             // passed in the method in order to prever from malicious requests
@@ -225,6 +227,7 @@ namespace Controllers
             Media storedMedia = DB.Medias.Get(id);
             if (storedMedia != null)
             {
+                Media.Shared = sharedCB == "on";
                 Media.Id = id; // patch the Id
                 DB.Medias.Update(Media);
             }

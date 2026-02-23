@@ -104,8 +104,9 @@ namespace Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        public ActionResult Subscribe(User user)
+        public ActionResult Subscribe(User user, string NotifyCB = "off")
         {
+            user.Notify = NotifyCB == "on";
             DB.Users.Add(user);
             DB.Events.Add("Subscribe");
             AccountsEmailing.SendEmailVerification(Url.Action("VerifyUser", "Accounts", null, Request.Url.Scheme), user);

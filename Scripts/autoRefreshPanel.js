@@ -22,7 +22,10 @@ class AutoRefreshedPanel {
             this.refresh(true);
             this.refreshRate = refreshRate * 1000; /* convert in miliseconds */
             this.paused = false;
-            setInterval(() => { this.refresh() }, this.refreshRate);
+            setInterval(() => {
+                $("#updatingView").show();
+                this.refresh();
+            }, this.refreshRate);
         }
         $("#updatingView").hide();
     }
@@ -48,7 +51,6 @@ class AutoRefreshedPanel {
     }
     refresh(forced = false) {
         if (!this.paused) {
-         $("#updatingView").show();
             $.ajax({
                 url: this.contentServiceURL + (forced ? (this.contentServiceURL.indexOf("?") > -1 ? "&" : "?") + "forceRefresh=true" : ""),
                 dataType: "html",
