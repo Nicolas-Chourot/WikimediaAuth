@@ -8,6 +8,7 @@
 @section Scripts {  <!-- Cette section ne doit pas être placée dans une vue partielle -->
     <script>
         $(() => {
+            newSession(300);
             // Nécessaire pour la validation des champs de formulaire
             initFormValidation();
             addConflictValidation("/Medias/CheckConflict", 'YoutubeId' /* field unicity check */, 'submit' /* form submit button Id */);

@@ -29,7 +29,7 @@
 .pageTitle {
     font-size: 1.5em;
     text-align: left;
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .menu {
@@ -53,13 +53,14 @@
     display: grid !important;
     grid-template-columns: 40px auto !important;
     align-items: center;
-    cursor:pointer;
+    cursor: pointer;
 }
 
-.flex {
+.searchBar {
     display: flex;
     gap: 6px;
 }
-.flexItem {
-    flex:1;
+
+.searchBarItem {
+    width:33%;
 }

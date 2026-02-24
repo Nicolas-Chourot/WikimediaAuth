@@ -231,6 +231,7 @@
     <Content Include="Views\Medias\GetMediasCategoriesList.cshtml" />
     <Content Include="Views\Medias\List.cshtml" />
     <Content Include="Views\Medias\MediaForm.cshtml" />
+    <Content Include="Views\Medias\GetMediasOwnersList.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

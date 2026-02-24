@@ -18,5 +18,27 @@ namespace Models
             }
             return Categories;
         }
+        public List<User> OwnersList()
+        {
+            List<User> owners = new List<User>();
+            foreach (Media media in ToList())
+            {
+                if (!owners.Where(o => o.Id == media.OwnerId).Any())
+                {
+                    owners.Add(media.Owner);
+                }
+            }
+            return owners.OrderBy(o => o.Name).ToList();
+        }
+
+        public void DeleteByOwnerId(int ownerId)
+        {
+            List<Media> list = ToList().Where(m => m.OwnerId == ownerId).ToList();
+            list.ForEach(m =>
+            {
+                base.Delete(m.Id);
+            });
+        }
     }
+
 }

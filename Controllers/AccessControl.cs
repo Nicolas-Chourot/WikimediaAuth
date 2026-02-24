@@ -23,28 +23,19 @@ namespace Controllers
                 bool ajaxRequest = HttpContext.Current.Request.Headers[13] == "cors";
                 try
                 {
-                    try
+                    if (User.ConnectedUser == null)
                     {
-                        if (User.ConnectedUser == null)
+                        if (!ajaxRequest)
+                            httpContext.Response.Redirect("/Accounts/Login?message=Accès non autorisé!&success=false");
+                        return false;
+                    }
+                    else
+                    {
+                        if (User.ConnectedUser.Access < RequiredAccess || User.ConnectedUser.Blocked)
                         {
-                            if (!ajaxRequest)
-                                httpContext.Response.Redirect("/Accounts/Login?message=Accès non autorisé!&success=false");
                             return false;
                         }
-                        else
-                        {
-                            if (User.ConnectedUser.Access < RequiredAccess || User.ConnectedUser.Blocked)
-                            {
-                                if (!ajaxRequest)
-                                    httpContext.Response.Redirect("/Accounts/Login?message=Accès non autorisé!&success=false");
-                                return false;
-                            }
-                            return true;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        return false;
+                        return true;
                     }
                 }
                 catch (Exception ex)

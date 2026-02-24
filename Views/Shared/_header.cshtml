@@ -164,9 +164,10 @@
 </div>
 @if (action == "list" && search)
 {
-    <div class="flex">
-        <input type="search" id="searchInput" class="section roundedBorder flexItem" value="@searchString" placeholder="Recherche...">
-        <div id="categorySelectPanel" class="flexItem">  <!-- Dynamically refreshed --> </div>
+    <div class="searchBar">
+        <input type="search" id="searchInput" class="section roundedBorder searchBarItem" value="@searchString" placeholder="Recherche...">
+        <div id="categorySelectPanel" class="searchBarItem">  <!-- Dynamically refreshed --> </div>
+        <div id="ownerSelectPanel" class="searchBarItem">  <!-- Dynamically refreshed --> </div>
     </div>
 }
 

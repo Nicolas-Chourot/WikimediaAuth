@@ -13,8 +13,11 @@
 @section Scripts {
     <script>
         $(() => {
-            let mediasListAutoRefreshPanel = new AutoRefreshedPanel("MediaListPanel", "/Medias/GetMedias", 30, mediasListPostRefresh);
+            newSession(300);
+            let mediasListAutoRefreshPanel = new AutoRefreshedPanel("MediaListPanel", "/Medias/GetMedias", 5, mediasListPostRefresh);
             let categoriesSelectAutoRefreshPanel = new AutoRefreshedPanel("categorySelectPanel", "/Medias/GetMediasCategoriesList", -1 /* manually refreshed */, categoriesSelectPostRefresh);
+            let ownerSelectAutoRefreshPanel = new AutoRefreshedPanel("ownerSelectPanel", "/Medias/GetMediasOwnersList", -1 /* manually refreshed */, ownerSelectPostRefresh);
+
             let keywordsOnchangeTimer = null;
 
             $("#searchInput").on('keyup', function () {
@@ -36,7 +39,9 @@
             });
             function mediasListPostRefresh() {
                 categoriesSelectAutoRefreshPanel.refresh(true);
+                ownerSelectAutoRefreshPanel.refresh(true);
             }
+
             function categoriesSelectPostRefresh() {
 
                 $("#categorySelect").off();
@@ -48,6 +53,20 @@
                 });
                 $("#categorySelect").on('change', function () {
                     window.location = "/Medias/SetSearchCategory?value=" + $("#categorySelect").val();
+                });
+            }
+
+            function ownerSelectPostRefresh() {
+
+                $("#mediasOwnerSelect").off();
+                $("#mediasOwnerSelect").focus(function () {
+                    mediasListAutoRefreshPanel.pause();
+                });
+                $("#mediasOwnerSelect").blur(function () {
+                    mediasListAutoRefreshPanel.restart();
+                });
+                $("#mediasOwnerSelect").on('change', function () {
+                    window.location = "/Medias/SetSearchMediasOwner?value=" + $("#mediasOwnerSelect").val();
                 });
             }
         })

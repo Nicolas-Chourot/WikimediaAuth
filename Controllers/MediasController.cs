@@ -21,6 +21,7 @@ namespace Controllers
             if (Session["Search"] == null) Session["Search"] = false;
             if (Session["SearchString"] == null) Session["SearchString"] = "";
             if (Session["SelectedCategory"] == null) Session["SelectedCategory"] = "";
+            if (Session["SelectedMediasOwner"] == null) Session["SelectedMediasOwner"] = 0;
             if (Session["Categories"] == null) Session["Categories"] = DB.Medias.MediasCategories();
             if (Session["SortByTitle"] == null) Session["SortByTitle"] = true;
             if (Session["SortAscending"] == null) Session["SortAscending"] = true;
@@ -63,6 +64,27 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
+
+        public ActionResult GetMediasOwnersList(bool forceRefresh = false)
+        {
+            try
+            {
+                InitSessionVariables();
+
+                bool search = (bool)Session["Search"];
+
+                if (search)
+                {
+                    return PartialView();
+                }
+                return null;
+            }
+            catch (System.Exception ex)
+            {
+                return Content("Erreur interne" + ex.Message, "text/html");
+            }
+        }
+
         // This action produce a partial view of Medias
         // It is meant to be called by an AJAX request (from client script)
         public ActionResult GetMedias(bool forceRefresh = false)
@@ -88,15 +110,24 @@ namespace Controllers
                     bool search = (bool)Session["Search"];
                     string searchString = (string)Session["SearchString"];
 
+                    if (Models.User.ConnectedUser.IsAdmin)
+                        result = DB.Medias.ToList();
+                    else
+                        result = DB.Medias.ToList().Where(c => c.Shared || Models.User.ConnectedUser.Id == c.OwnerId);
+
                     if (search)
                     {
-                        result = DB.Medias.ToList().Where(c => c.Title.ToLower().Contains(searchString)).OrderBy(c => c.Title);
+                        result = result.Where(c => c.Title.ToLower().Contains(searchString));
+
                         string SelectedCategory = (string)Session["SelectedCategory"];
                         if (SelectedCategory != "")
                             result = result.Where(c => c.Category == SelectedCategory);
+
+                        int SelectedMediasOwner = (int)Session["SelectedMediasOwner"];
+                        if (SelectedMediasOwner != 0)
+                            result = result.Where(m => m.OwnerId == SelectedMediasOwner);
                     }
-                    else
-                        result = DB.Medias.ToList();
+                    
                     if ((bool)Session["SortAscending"])
                     {
                         if ((bool)Session["SortByTitle"])
@@ -160,6 +191,13 @@ namespace Controllers
             Session["SelectedCategory"] = value;
             return RedirectToAction("List");
         }
+
+        public ActionResult SetSearchMediasOwner(int value)
+        {
+            Session["SelectedMediasOwner"] = value;
+            return RedirectToAction("List");
+        }
+
         public ActionResult About()
         {
             return View();
@@ -189,6 +227,7 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Create(Media Media, string sharedCB = "off")
         {
+            Media.OwnerId = Models.User.ConnectedUser.Id;
             Media.Shared = sharedCB == "on";
             DB.Medias.Add(Media);
             return RedirectToAction("List");
@@ -208,9 +247,12 @@ namespace Controllers
             {
                 Media Media = DB.Medias.Get(id);
                 if (Media != null)
-                    return View(Media);
+                {
+                    if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
+                        return View(Media);
+                }
             }
-            return RedirectToAction("List");
+            return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
         }
 
         [UserAccess(Models.Access.Write)]
@@ -227,6 +269,7 @@ namespace Controllers
             Media storedMedia = DB.Medias.Get(id);
             if (storedMedia != null)
             {
+                Media.OwnerId = storedMedia.OwnerId;
                 Media.Shared = sharedCB == "on";
                 Media.Id = id; // patch the Id
                 DB.Medias.Update(Media);
@@ -240,9 +283,14 @@ namespace Controllers
             int id = Session["CurrentMediaId"] != null ? (int)Session["CurrentMediaId"] : 0;
             if (id != 0)
             {
-                DB.Medias.Delete(id);
+                Media Media = DB.Medias.Get(id);
+                if (Media != null)
+                {
+                    if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
+                        DB.Medias.Delete(id);
+                }
             }
-            return RedirectToAction("List");
+            return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
         }
 
         // This action is meant to be called by an AJAX request

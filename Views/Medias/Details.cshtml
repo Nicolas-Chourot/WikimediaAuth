@@ -5,7 +5,7 @@
     <dl>
 
         <dd>
-         
+
             @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
             {
                 <span style="color:grey">[Partagé]</span>
@@ -13,7 +13,7 @@
         </dd>
         <dd>
             @Model.Title
-           
+
         </dd>
         <dd>
             <iframe class="mediaPlayerBig"
@@ -51,3 +51,12 @@
 
     </dl>
 </div>
+
+
+@section Scripts {
+    <script>
+        $(() => {
+            newSession(300);
+        })
+    </script>
+}
