@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // Les informations générales sur un assembly sont contrôlées via ce
 // l'ensemble d'attributs suivant. Changez les valeurs de ces attributs pour modifier les informations
 // associées à un assembly.
-[assembly: AssemblyTitle("WebApplication")]
+[assembly: AssemblyTitle("Wikimedia")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("WebApplication")]
+[assembly: AssemblyProduct("Wikimedia")]
 [assembly: AssemblyCopyright("Copyright ©  2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
