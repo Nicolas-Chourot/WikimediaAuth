@@ -101,7 +101,7 @@ namespace Controllers
             {
                 IEnumerable<Media> result = null;
                 // Must evaluate HasChanged before forceRefresh, this will fix an usefull refresh
-                if (DB.Medias.HasChanged || forceRefresh)
+                if (DB.Medias.HasChanged || DB.Likes.HasChanged || forceRefresh)
                 {
                     // forceRefresh is true when a related view is produce
                     // DB.Medias.HasChanged is true when a change has been applied on any Media
@@ -303,6 +303,16 @@ namespace Controllers
             // Response json value true if name is used in other Medias than the current Media
             return Json(DB.Medias.ToList().Where(c => c.YoutubeId == YoutubeId && c.Id != id).Any(),
                         JsonRequestBehavior.AllowGet /* must have for CORS verification by client browser */);
+        }
+
+        public ActionResult ToggleMediaLike(int id)
+        {
+            User connectedUser = (User)Session["ConnectedUser"];
+            DB.Likes.ToggleLike(id, connectedUser.Id);
+            Media media = DB.Medias.Get(id);
+            media.ResetCountsCalc();
+            DB.Events.Add("ToggleMediaLike", media.Title);
+            return null;
         }
 
     }

@@ -1,6 +1,8 @@
 ﻿using DAL;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Models
 {
@@ -20,6 +22,51 @@ namespace Models
             {
                 User user = DB.Users.Get(OwnerId).Copy();
                 return user;
+            }
+        }
+        [JsonIgnore]
+        private int _likesCount = -1;
+
+        [JsonIgnore]
+        private List<Like> _likesList = null;
+
+        public void ResetCountsCalc()
+        {
+            _likesCount = -1;
+            _likesList = null;
+        }
+        [JsonIgnore]
+        public int LikesCount
+        {
+            get
+            {
+                if (_likesCount == -1)
+                    _likesCount = Likes.Count();
+                return _likesCount;
+            }
+        }
+        [JsonIgnore]
+        public List<Like> Likes
+        {
+            get
+            {
+                if (_likesList == null)
+                    _likesList = DB.Likes.ToList().Where(l => l.MediaId == Id).ToList();
+                return _likesList;
+            }
+        }
+
+        [JsonIgnore]
+        public string UsersLikesList
+        {
+            get
+            {
+                string UsersLikesList = "Usagers qui ont aimé :" + "\n";
+                foreach (var like in Likes)
+                {
+                    UsersLikesList += DB.Users.Get(like.UserId).Name + "\n";
+                }
+                return UsersLikesList;
             }
         }
     }

@@ -3,9 +3,13 @@
 @{
     if (Model.Count() != 0)
     {
+        int connectedId = Models.User.ConnectedUser.Id;
         foreach (var media in Model)
         {
-            bool writeAccess = Models.User.ConnectedUser.IsAdmin || media.OwnerId == Models.User.ConnectedUser.Id;
+            bool writeAccess = Models.User.ConnectedUser.IsAdmin || media.OwnerId == connectedId;
+            bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == media.Id && l.UserId == connectedId));
+            string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
+
             <div class="mediaLayout">
                 <a href="/Medias/Details/@media.Id" title="Voir les détails de @media.Title" style="text-decoration:none; width:100% !important">
                     <div class="mediaThumbnail" style="background-image:url('https://img.youtube.com/vi/@media.YoutubeId/mqdefault.jpg'); padding:6px; display:flex; flex-flow:row-reverse ">
@@ -15,14 +19,24 @@
                             <div class="UserSmallAvatar transparentBackground" style="background-image: url('/Content/UI-Images/shared.png'); margin-right:6px;" title="partagée"></div>
                         }
                     </div>
-                    <div style="max-width:100%; font-size:0.8em; font-weight:bold" class="ellipsis">@media.Title</div>
-                    <div style="color:gray; font-size:0.6em">@media.Category</div>
                 </a>
+                <div style="display:grid; grid-template-columns:auto 50px; align-items:start" >
+                    <div class="ellipsis">
+                        <div style="font-size:0.8em; font-weight:bold">
+                            @media.Title
+                        </div>
+                        <div style="color:gray; font-size:0.6em">@media.Category</div>
+                    </div>
+                    <div style="text-align:right; padding-right:3px; cursor:pointer; color:dodgerblue">
+                        <span title="@media.UsersLikesList">@media.LikesCount </span>
+                        <i class="cmdIconSmall @mediaLikedByConnectedUser fa-thumbs-up toggleLikeCmd" mediaid="@media.Id"></i>
+                    </div>
+                </div>
             </div>
-            }
-        }
-        else
-        {
-            <h3>Aucun résulat</h3>
         }
     }
+    else
+    {
+        <h3>Aucun résulat</h3>
+    }
+}

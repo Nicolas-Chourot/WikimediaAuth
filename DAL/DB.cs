@@ -31,5 +31,7 @@ namespace DAL
         static public MediasRepository Medias { get; set; } 
             = new MediasRepository();
 
+        static public LikesRepository Likes { get; set; }
+           = new LikesRepository();
     }
 }
