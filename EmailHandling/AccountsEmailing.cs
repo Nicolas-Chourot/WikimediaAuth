@@ -40,7 +40,7 @@ namespace EmailHandling
 
     public static class AccountsEmailing
     {
-        const string ApplicationName = "Application Web";
+        const string ApplicationName = "Wikimedia";
 
         public static string GetServerDomaine()
         {
@@ -59,7 +59,7 @@ namespace EmailHandling
 
             string Body = "Bonjour " + user.Name + @",<br/><br/>";
 
-            Body += @"Merci de vous être inscrit au " + ApplicationName + ". <br/>";
+            Body += @"Merci de vous être inscrit à " + ApplicationName + ". <br/>";
             Body += @"Pour utiliser votre compte vous devez confirmer votre inscription en cliquant sur le lien suivant : <br/>";
 
             Body += Link;
