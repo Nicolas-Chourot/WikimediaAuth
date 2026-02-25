@@ -9,7 +9,10 @@ namespace Controllers
         {
             Notification notification = DAL.DB.Notifications.Pop();
             if (notification != null)
-                return Json(new { notification.User.Avatar, notification.Message }, JsonRequestBehavior.AllowGet);
+            {
+                if (notification.User != null)
+                    return Json(new { notification.User.Avatar, notification.Message }, JsonRequestBehavior.AllowGet);
+            }
             return Json(null, JsonRequestBehavior.AllowGet);
         }
     }

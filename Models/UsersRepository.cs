@@ -74,7 +74,8 @@ namespace Models
                 {
                     BeginTransaction();
                     userToDelete.DeleteLogins();
-                    DB.Medias.DeleteByOwnerId(userId);
+                    userToDelete.DeleteLikes();
+                    userToDelete.DeleteMedias();
                     base.Delete(userId);
                     EndTransaction();
                     return true;

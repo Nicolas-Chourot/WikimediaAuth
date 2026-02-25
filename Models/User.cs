@@ -68,6 +68,12 @@ namespace Models
 
         [JsonIgnore]
         public List<Login> Logins { get { return DB.Logins.ToList().Where(l => l.UserId == Id).ToList(); } }
+        
+        [JsonIgnore]
+        public List<Like> Likes { get { return DB.Likes.ToList().Where(l => l.UserId == Id).ToList(); } }
+
+        [JsonIgnore]
+        public List<Media> Medias { get { return DB.Medias.ToList().Where(l => l.OwnerId == Id).ToList(); } }
 
         public void DeleteLogins()
         {
@@ -76,9 +82,20 @@ namespace Models
                 DB.Logins.Delete(login.Id);
             }
         }
-
-       
-
+        public void DeleteLikes()
+        {
+            foreach (Like like in Likes)
+            {
+                DB.Likes.Delete(like.Id);
+            }
+        }
+        public void DeleteMedias()
+        {
+            foreach (Media media in Medias)
+            {
+                DB.Medias.Delete(media.Id);
+            }
+        }
         private static List<int> GetOnlineUser()
         {
             if (HttpRuntime.Cache["onlineUsers"] == null)

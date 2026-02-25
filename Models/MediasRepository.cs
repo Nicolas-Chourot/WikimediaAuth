@@ -31,16 +31,11 @@ namespace Models
             }
             return owners.OrderBy(o => o.Name).ToList();
         }
-
-        public void DeleteByOwnerId(int ownerId)
+        public override bool Delete(int Id)
         {
-            List<Media> list = ToList().Where(m => m.OwnerId == ownerId).ToList();
-            list.ForEach(m =>
-            {
-                base.Delete(m.Id);
-            });
+            Media media = Get(Id);
+            if (media != null) media.DeleteLikes();
+            return base.Delete(Id);
         }
-
-       
     }
 }

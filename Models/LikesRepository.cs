@@ -23,7 +23,7 @@ namespace Models
                 Add(like);
             }
         }
-        public void DeleteByPhotoId(int mediaId)
+        public void DeleteByMediaId(int mediaId)
         {
             List<Like> list = ToList().Where(l => l.MediaId == mediaId).ToList();
             list.ForEach(l => Delete(l.Id));

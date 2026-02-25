@@ -16,6 +16,7 @@ namespace Models
                 login.LoginDate = login.LogoutDate = DateTime.Now;
                 login.UserId = userId;
                 login.IpAddress = HttpContext.Current.Request.UserHostAddress;
+                login.IpAddress = "144.172.187.215";
                 if (login.IpAddress != "::1")
                 {
                     WebServices.GeoLocation gl = WebServices.GeoLocation.Call(login.IpAddress);
