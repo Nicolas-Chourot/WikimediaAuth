@@ -1,4 +1,5 @@
 using DAL;
+using EmailHandling;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -32,6 +33,36 @@ namespace Wikimedia
             appTimer.Interval = 10000000; // 10 second in milliseconds
             appTimer.Elapsed += new ElapsedEventHandler(OnTimerElapsed);
             appTimer.Enabled = true; // Start the timer
+
+            // cleaning
+            foreach (var login in DB.Logins.ToList().Copy())
+            {
+                if (login.User == null) DB.Logins.Delete(login.Id);
+            }
+            foreach (var uvEmail in DB.UnverifiedEmails.ToList().Copy())
+            {
+                if (uvEmail.User == null) DB.UnverifiedEmails.Delete(uvEmail.Id);
+            }
+            foreach (RenewPasswordCommand renewPC in DB.RenewPasswordCommands.ToList().Copy())
+            {
+                if (renewPC.User == null) DB.RenewPasswordCommands.Delete(renewPC.Id);
+            }
+            foreach (Models.Event @event in DB.Events.ToList().Copy())
+            {
+                if (@event.User == null) DB.RenewPasswordCommands.Delete(@event.Id);
+            }
+            foreach (var like in DB.Likes.ToList().Copy())
+            {
+                if (like.User == null || like.Media == null) DB.Likes.Delete(like.Id);
+            }
+            foreach (var notification in DB.Notifications.ToList().Copy())
+            {
+                if (notification.User == null || notification.User == null) DB.Notifications.Delete(notification.Id);
+            }
+            foreach (Models.Media media in DB.Medias.ToList().Copy())
+            {
+                if (media.Owner == null) DB.RenewPasswordCommands.Delete(media.Id);
+            }
         }
 
         private static void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -44,6 +75,7 @@ namespace Wikimedia
         protected void Session_Start()
         {
             // do session intialisations
+            
         }
         protected void Session_End()
         {

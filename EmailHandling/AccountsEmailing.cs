@@ -1,5 +1,6 @@
 ﻿using DAL;
 using Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace EmailHandling
         public string Email { get; set; }
         public string VerificationCode { get; set; }
         public int UserId { get; set; }
+        [JsonIgnore]
+        public User User => DB.Users.Get(UserId);
     }
 
     public class RenewPasswordCommand : Record
@@ -36,6 +39,8 @@ namespace EmailHandling
         }
         public string VerificationCode { get; set; }
         public int UserId { get; set; }
+        [JsonIgnore]
+        public User User => DB.Users.Get(UserId);
     }
 
     public static class AccountsEmailing
@@ -54,7 +59,7 @@ namespace EmailHandling
             DB.UnverifiedEmails.Add(unverifiedEmail);
 
             string Link = @"<br/><a href='" + ActionURL + "?code=" + unverifiedEmail.VerificationCode + @"' >Confirmez votre inscription...</a>";
-           
+
             string Subject = ApplicationName + " - Vérification de courriel...";
 
             string Body = "Bonjour " + user.Name + @",<br/><br/>";
@@ -96,7 +101,7 @@ namespace EmailHandling
         }
         public static void SendEmailRenewPasswordCommand(string ActionURL, string email)
         {
-            User user = DB.Users.ToList().Where(u=> u.Email == email).First();
+            User user = DB.Users.ToList().Where(u => u.Email == email).First();
             if (user != null)
             {
                 RenewPasswordCommand renewPasswordCommand = new RenewPasswordCommand();

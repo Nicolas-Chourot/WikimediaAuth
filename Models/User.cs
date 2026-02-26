@@ -84,14 +84,14 @@ namespace Models
         }
         public void DeleteLikes()
         {
-            foreach (Like like in Likes)
+            foreach (Like like in Likes.Copy())
             {
                 DB.Likes.Delete(like.Id);
             }
         }
         public void DeleteMedias()
         {
-            foreach (Media media in Medias)
+            foreach (Media media in Medias.Copy())
             {
                 DB.Medias.Delete(media.Id);
             }

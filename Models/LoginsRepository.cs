@@ -16,7 +16,7 @@ namespace Models
                 login.LoginDate = login.LogoutDate = DateTime.Now;
                 login.UserId = userId;
                 login.IpAddress = HttpContext.Current.Request.UserHostAddress;
-                login.IpAddress = "144.172.187.215";
+                //login.IpAddress = "144.172.187.215";
                 if (login.IpAddress != "::1")
                 {
                     WebServices.GeoLocation gl = WebServices.GeoLocation.Call(login.IpAddress);
@@ -77,7 +77,7 @@ namespace Models
                 DateTime dayAfter = day.AddDays(1);
                 List<Login> logins = ToList().Where(l => l.LoginDate >= day && l.LoginDate < dayAfter).ToList();
                 // Notice: You can delete items of List<T> collection in a foreach loop but it will fail with items of IEnumerable<T> collection
-                foreach (Login login in logins)
+                foreach (Login login in logins.Copy())
                 {
                     Delete(login.Id);
                 }

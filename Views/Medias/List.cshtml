@@ -37,13 +37,14 @@
             $("#searchInput").blur(function () {
                 mediasListAutoRefreshPanel.restart();
             });
+
             function mediasListPostRefresh() {
                 categoriesSelectAutoRefreshPanel.refresh(true);
                 ownerSelectAutoRefreshPanel.refresh(true);
                 $(".toggleLikeCmd").click(function (e) {
                     mediasListAutoRefreshPanel.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
                     e.preventDefault();
-                });
+                });  
             }
 
             function categoriesSelectPostRefresh() {

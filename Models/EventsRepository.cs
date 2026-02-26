@@ -26,7 +26,7 @@ namespace Models
                 DateTime dayAfter = day.AddDays(1);
                 List<Event> events = ToList().Where(l => l.CreationDate >= day && l.CreationDate < dayAfter).ToList();
                 // Notice: You can delete items of List<T> collection in a foreach loop but it will fail with items of IEnumerable<T> collection
-                foreach (Event @event in events)
+                foreach (Event @event in events.Copy())
                 {
                     Delete(@event.Id);
                 }

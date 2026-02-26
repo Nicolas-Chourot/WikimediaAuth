@@ -17,18 +17,8 @@ namespace Models
         public bool Shared { get; set; } = true;
         public DateTime PublishDate { get; set; } = DateTime.Now;
         [JsonIgnore]
-        public User Owner
-        {
-            get
-            {
-                User user = DB.Users.Get(OwnerId).Copy();
-                if (user == null)
-                {
-                    user = DB.Users.Get(1).Copy();
-                }
-                return user;
-            }
-        }
+        public User Owner => DB.Users.Get(OwnerId).Copy();
+                
         [JsonIgnore]
         private int _likesCount = -1;
 
@@ -79,7 +69,7 @@ namespace Models
         public bool DeleteLikes()
         {
             List<Like> likes = DB.Likes.ToList().Where(l => l.MediaId == this.Id).ToList();
-            likes.ForEach(m =>
+            likes.Copy().ForEach(m =>
             {
                 DB.Likes.Delete(m.Id);
             });

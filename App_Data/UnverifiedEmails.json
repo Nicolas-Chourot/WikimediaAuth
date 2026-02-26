@@ -1,11 +1,5 @@
 [
   {
-    "Email": "Saliha.Yacoub@yopmail.com",
-    "VerificationCode": "eaf5932d-b686-4032-9dd3-cba495bed6a0",
-    "UserId": 4,
-    "Id": 1
-  },
-  {
     "Email": "Luc.Ledoux@yopmail.com",
     "VerificationCode": "81d5a2ac-fe43-4047-bbe8-e61ab34b28c3",
     "UserId": 5,
@@ -34,11 +28,5 @@
     "VerificationCode": "5ddf8ad5-8799-4f1a-9f9b-ca96455325a1",
     "UserId": 9,
     "Id": 6
-  },
-  {
-    "Email": "Test@test.test",
-    "VerificationCode": "6e660ed4-61cd-42cc-af36-5ee8aa7eb00e",
-    "UserId": 10,
-    "Id": 7
   }
 ]

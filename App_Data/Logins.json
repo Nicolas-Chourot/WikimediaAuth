@@ -1,1 +1,22 @@
-[{"Id":1,"UserId":1,"LoginDate":"2026-02-25T12:28:40.4359431-05:00","LogoutDate":"2026-02-25T12:29:10.3585169-05:00","IpAddress":"144.172.187.215","City":"Blainville","RegionName":"Quebec","CountryCode":"CA"}]
+[
+  {
+    "Id": 1,
+    "UserId": 1,
+    "LoginDate": "2026-02-25T12:28:40.4359431-05:00",
+    "LogoutDate": "2026-02-25T16:07:42.508234-05:00",
+    "IpAddress": "144.172.187.215",
+    "City": "Blainville",
+    "RegionName": "Quebec",
+    "CountryCode": "CA"
+  },
+  {
+    "Id": 2,
+    "UserId": 1,
+    "LoginDate": "2026-02-25T14:57:10.9226569-05:00",
+    "LogoutDate": "2026-02-25T14:57:10.9226569-05:00",
+    "IpAddress": "::1",
+    "City": "",
+    "RegionName": "",
+    "CountryCode": ""
+  }
+]
