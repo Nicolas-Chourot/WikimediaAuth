@@ -10,11 +10,12 @@
     int currentMediaId = Session["CurrentMediaId"] != null ? (int)Session["CurrentMediaId"] : 0;
     string currentMediaTitle = Session["currentMediaTitle"] != null ? (string)Session["currentMediaTitle"] : "";
     string selectedCategory = Session["CurrentSelectedCategory"] != null ? (string)Session["CurrentSelectedCategory"] : "";
-    bool sortByTitle = Session["SortByTitle"] != null ? (bool)Session["SortByTitle"] : true;
+    bool sortByTitle = Session["SortByTitle"] != null ? (bool)Session["SortByTitle"] : false;
+    bool SearchAscending = Session["SortAscending"] != null ? (bool)Session["SortAscending"] : false;
     string checkSortByTitle = sortByTitle ? "fa-check" : "";
     string checkSortByDate = sortByTitle ? "" : "fa-check";
     var Categories = (List<string>)Session["Categories"];
-    bool SearchAscending = Session["SortAscending"] != null ? (bool)Session["SortAscending"] : true;
+
 
 
     bool userConnected = Models.User.ConnectedUser != null;

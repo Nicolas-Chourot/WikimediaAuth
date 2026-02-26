@@ -23,8 +23,8 @@ namespace Controllers
             if (Session["SelectedCategory"] == null) Session["SelectedCategory"] = "";
             if (Session["SelectedMediasOwner"] == null) Session["SelectedMediasOwner"] = 0;
             if (Session["Categories"] == null) Session["Categories"] = DB.Medias.MediasCategories();
-            if (Session["SortByTitle"] == null) Session["SortByTitle"] = true;
-            if (Session["SortAscending"] == null) Session["SortAscending"] = true;
+            if (Session["SortByTitle"] == null) Session["SortByTitle"] = false;
+            if (Session["SortAscending"] == null) Session["SortAscending"] = false;
             ValidateSelectedCategory();
         }
 
