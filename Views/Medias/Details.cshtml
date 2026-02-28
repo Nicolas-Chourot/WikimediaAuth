@@ -1,9 +1,13 @@
 ﻿@model Models.Media
-@{ ViewBag.PageTitle = "Détails"; }
+@{
+    ViewBag.PageTitle = "Détails";
+    int connectedId = Models.User.ConnectedUser.Id;
+    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == Model.Id && l.UserId == connectedId));
+    string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
+}
 
 <div class="detailsPanel">
     <dl>
-
         <dd>
 
             @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
@@ -13,7 +17,6 @@
         </dd>
         <dd>
             @Model.Title
-
         </dd>
         <dd>
             <iframe class="mediaPlayerBig"
@@ -39,7 +42,7 @@
         </dt>
 
         <dd>
-            @Model.PublishDate.ToLongDateString()
+            @Helper.When(Model.PublishDate)
         </dd>
         <dt>
             Ajouté par

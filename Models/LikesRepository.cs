@@ -25,12 +25,12 @@ namespace Models
         }
         public void DeleteByMediaId(int mediaId)
         {
-            List<Like> list = ToList().Where(l => l.MediaId == mediaId).ToList();
+            List<Like> list = ToList().Where(l => l.MediaId == mediaId).ToList().Copy();
             list.ForEach(l => Delete(l.Id));
         }
         public void DeleteByUserId(int userId)
         {
-            List<Like> list = ToList().Where(l => l.UserId == userId).ToList();
+            List<Like> list = ToList().Where(l => l.UserId == userId).ToList().Copy();
             list.ForEach(l => Delete(l.Id));
         }
     }

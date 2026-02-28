@@ -64,7 +64,7 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
-
+       
         public ActionResult GetMediasOwnersList(bool forceRefresh = false)
         {
             try
@@ -209,9 +209,12 @@ namespace Controllers
             Media Media = DB.Medias.Get(id);
             if (Media != null)
             {
-                ViewBag.IsOwner = Models.User.ConnectedUser.IsAdmin || Media.OwnerId == Models.User.ConnectedUser.Id;
+                bool isOwner = Models.User.ConnectedUser.IsAdmin || Media.OwnerId == Models.User.ConnectedUser.Id;
+                ViewBag.IsOwner = isOwner;
                 Session["CurrentMediaTitle"] = Media.Title;
-                return View(Media);
+                if (Media.Shared || isOwner)
+                    return View(Media);
+                return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
             }
             return RedirectToAction("List");
         }
@@ -314,6 +317,5 @@ namespace Controllers
             DB.Events.Add("ToggleMediaLike", media.Title);
             return null;
         }
-
     }
 }
