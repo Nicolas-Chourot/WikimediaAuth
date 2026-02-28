@@ -273,6 +273,7 @@ namespace Controllers
             if (storedMedia != null)
             {
                 Media.OwnerId = storedMedia.OwnerId;
+                Media.PublishDate = storedMedia.PublishDate;
                 Media.Shared = sharedCB == "on";
                 Media.Id = id; // patch the Id
                 DB.Medias.Update(Media);
