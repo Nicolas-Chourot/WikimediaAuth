@@ -313,7 +313,6 @@ namespace Controllers
         [UserAccess(Access.Admin)]
         public ActionResult ToggleBlockUser(int id)
         {
-            DB.Events.Add("ToggleBlockUser");
             if (id != 1)
             {
                 User user = DB.Users.Get(id);
@@ -322,9 +321,13 @@ namespace Controllers
                     user.Blocked = !user.Blocked;
                     user.Online = false;
                     DB.Users.Update(user);
+                    if (user.Blocked)
+                        DB.Events.Add("BlockUser", user.Name);
+                    else
+                        DB.Events.Add("UnBlockUser", user.Name);
                     string message = user.Blocked ?
-                        "Votre compte a été bloqué par l'administrateur du site." :
-                        "Votre compte a été débloqué par l'administrateur du site.";
+                            "Votre compte a été bloqué par l'administrateur du site." :
+                            "Votre compte a été débloqué par l'administrateur du site.";
                     AccountsEmailing.SendEmailUserStatusChanged(message, user);
                 }
             }
@@ -358,6 +361,7 @@ namespace Controllers
                 {
                     DB.Events.Add("DeleteUser " + user.Name);
                     string message = "Votre compte a été effacé par l'administrateur du site.";
+                    DB.Events.Add("DeleteUser", user.Name);
                     DB.Users.Delete(id);
                     AccountsEmailing.SendEmailUserStatusChanged(message, user);
                 }

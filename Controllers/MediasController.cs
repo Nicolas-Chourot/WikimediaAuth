@@ -1,5 +1,6 @@
 ﻿using DAL;
 using Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -23,7 +24,7 @@ namespace Controllers
             if (Session["SelectedCategory"] == null) Session["SelectedCategory"] = "";
             if (Session["SelectedMediasOwner"] == null) Session["SelectedMediasOwner"] = 0;
             if (Session["Categories"] == null) Session["Categories"] = DB.Medias.MediasCategories();
-            if (Session["SortByTitle"] == null) Session["SortByTitle"] = false;
+            if (Session["MediaSortBy"] == null) Session["MediaSortBy"] = MediaSortBy.PublishDate;
             if (Session["SortAscending"] == null) Session["SortAscending"] = false;
             ValidateSelectedCategory();
         }
@@ -64,7 +65,7 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
-       
+
         public ActionResult GetMediasOwnersList(bool forceRefresh = false)
         {
             try
@@ -76,6 +77,26 @@ namespace Controllers
                 if (search)
                 {
                     return PartialView();
+                }
+                return null;
+            }
+            catch (System.Exception ex)
+            {
+                return Content("Erreur interne" + ex.Message, "text/html");
+            }
+        }
+        public ActionResult GetMediaDetails(bool forceRefresh = false)
+        {
+            try
+            {
+                InitSessionVariables();
+
+                int mediaId = (int)Session["CurrentMediaId"];
+                Media Media = DB.Medias.Get(mediaId);
+
+                if (DB.Medias.HasChanged || DB.Likes.HasChanged || forceRefresh)
+                {
+                    return PartialView(Media);
                 }
                 return null;
             }
@@ -127,20 +148,31 @@ namespace Controllers
                         if (SelectedMediasOwner != 0)
                             result = result.Where(m => m.OwnerId == SelectedMediasOwner);
                     }
-                    
+
+
                     if ((bool)Session["SortAscending"])
                     {
-                        if ((bool)Session["SortByTitle"])
-                            result = result.OrderBy(c => c.Title);
-                        else
-                            result = result.OrderBy(c => c.PublishDate);
+                        switch ((MediaSortBy)Session["MediaSortBy"])
+                        {
+                            case MediaSortBy.Title:
+                                result = result.OrderBy(c => c.Title); break;
+                            case MediaSortBy.PublishDate:
+                                result = result.OrderBy(c => c.PublishDate); break;
+                            case MediaSortBy.Likes:
+                                result = result.OrderBy(c => c.LikesCount); break;
+                        }
                     }
                     else
                     {
-                        if ((bool)Session["SortByTitle"])
-                            result = result.OrderByDescending(c => c.Title);
-                        else
-                            result = result.OrderByDescending(c => c.PublishDate);
+                        switch ((MediaSortBy)Session["MediaSortBy"])
+                        {
+                            case MediaSortBy.Title:
+                                result = result.OrderByDescending(c => c.Title); break;
+                            case MediaSortBy.PublishDate:
+                                result = result.OrderByDescending(c => c.PublishDate); break;
+                            case MediaSortBy.Likes:
+                                result = result.OrderByDescending(c => c.LikesCount); break;
+                        }
                     }
                     return PartialView(result);
                 }
@@ -164,9 +196,16 @@ namespace Controllers
             Session["Search"] = !(bool)Session["Search"];
             return RedirectToAction("List");
         }
-        public ActionResult SortByTitle()
+        public ActionResult SetMediaSortBy(MediaSortBy mediaSortBy)
+        {      // /Medias/SetMediasSortBy?mediaSortBy= 
+            Session["MediaSortBy"] = mediaSortBy;
+            return RedirectToAction("List");
+        }
+        public ActionResult ToggleMediaSort()
         {
-            Session["SortByTitle"] = true;
+            int mediaSortBy = (int)Session["MediaSortBy"] + 1;
+            if (mediaSortBy >= Enum.GetNames(typeof(MediaSortBy)).Length) mediaSortBy = 0;
+            Session["MediaSortBy"] = mediaSortBy;
             return RedirectToAction("List");
         }
         public ActionResult ToggleSort()
@@ -176,7 +215,7 @@ namespace Controllers
         }
         public ActionResult SortByDate()
         {
-            Session["SortByTitle"] = false;
+            Session["MediaSortBy"] = false;
             return RedirectToAction("List");
         }
 
@@ -233,6 +272,7 @@ namespace Controllers
             Media.OwnerId = Models.User.ConnectedUser.Id;
             Media.Shared = sharedCB == "on";
             DB.Medias.Add(Media);
+            DB.Events.Add("Create", Media.Title);
             return RedirectToAction("List");
         }
 
@@ -277,6 +317,7 @@ namespace Controllers
                 Media.Shared = sharedCB == "on";
                 Media.Id = id; // patch the Id
                 DB.Medias.Update(Media);
+                DB.Events.Add("Edit", Media.Title);
             }
             return RedirectToAction("Details/" + id);
         }
@@ -291,7 +332,11 @@ namespace Controllers
                 if (Media != null)
                 {
                     if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
+                    {
                         DB.Medias.Delete(id);
+                        DB.Events.Add("Delete", Media.Title);
+                    }
+                    return RedirectToAction("List");
                 }
             }
             return Redirect("/Accounts/Login?message=Accès illégal! &success=false");

@@ -10,10 +10,21 @@
     int currentMediaId = Session["CurrentMediaId"] != null ? (int)Session["CurrentMediaId"] : 0;
     string currentMediaTitle = Session["currentMediaTitle"] != null ? (string)Session["currentMediaTitle"] : "";
     string selectedCategory = Session["CurrentSelectedCategory"] != null ? (string)Session["CurrentSelectedCategory"] : "";
-    bool sortByTitle = Session["SortByTitle"] != null ? (bool)Session["SortByTitle"] : false;
+    var mediaSortBy = Session["MediaSortBy"] != null ? (Models.MediaSortBy)Session["MediaSortBy"] : MediaSortBy.PublishDate;
     bool SearchAscending = Session["SortAscending"] != null ? (bool)Session["SortAscending"] : false;
-    string checkSortByTitle = sortByTitle ? "fa-check" : "";
-    string checkSortByDate = sortByTitle ? "" : "fa-check";
+
+    string checkSortByTitle = mediaSortBy == MediaSortBy.Title ? "fa-check" : "";
+    string checkSortByDate = mediaSortBy == MediaSortBy.PublishDate ? "fa-check" : "";
+    string checkSortByLikes = mediaSortBy == MediaSortBy.Likes ? "fa-check" : "";
+    string iconSortBy = "";
+    string iconSortByTitle = "";
+    switch (mediaSortBy)
+    {
+        case MediaSortBy.Title: iconSortBy = "fa-solid fa-t"; iconSortByTitle = "Tri des vidéos par titre"; break;
+        case MediaSortBy.PublishDate: iconSortBy = "fa-regular fa-calendar"; iconSortByTitle = "Tri des vidéos par date de publication"; break;
+        case MediaSortBy.Likes: iconSortBy = "fa-regular fa-thumbs-up"; iconSortByTitle = "Tri des vidéos par nombre de j'aime"; break;
+    }
+
     var Categories = (List<string>)Session["Categories"];
 
 
@@ -51,16 +62,18 @@
                         <a href="/@controller/Create" class="cmdIcon fa fa-circle-plus" title="Ajouter..."></a>
                     }
 
+                    <a href="/@controller/ToggleMediaSort" class="cmdIcon @iconSortBy" title="@iconSortByTitle"></a>
+
                     @if (SearchAscending)
                     {
-                        <a href="/@controller/ToggleSort" id="cmdToggleSearch" class="cmdIcon fa fa-arrow-down-short-wide" title="Tri ascendant..."></a>
+                        <a href="/@controller/ToggleSort" class="cmdIcon fa fa-arrow-down-short-wide" title="Tri ascendant..."></a>
                     }
                     else
                     {
-                        <a href="/@controller/ToggleSort" id="cmdToggleSearch" class="cmdIcon fa fa-arrow-up-wide-short" title="Tri descendant..."></a>
+                        <a href="/@controller/ToggleSort" class="cmdIcon fa fa-arrow-up-wide-short" title="Tri descendant..."></a>
                     }
 
-                    <a href="/@controller/ToggleSearch" id="cmdToggleSearch" class="cmdIcon fa fa-search" title="Recherche..."></a>
+                    <a href="/@controller/ToggleSearch" class="cmdIcon fa fa-search" title="Recherche..."></a>
 
                     <!-- Dropdown menu -->
                     <div id="menu" class="dropdown ms-auto">
@@ -104,13 +117,18 @@
 
                             <div class="dropdown-divider"></div>
 
-                            <div class="dropdown-item item-layout">
-                                <i class="menuIcon fa @checkSortByTitle"></i>
-                                <a href="/@controller/SortByTitle">Trier par titre</a>
-                            </div>
+
                             <div class="dropdown-item item-layout">
                                 <i class="menuIcon fa @checkSortByDate"></i>
-                                <a href="/@controller/SortByDate">Trier par date</a>
+                                <a href="/Medias/SetMediaSortBy?mediaSortBy=@MediaSortBy.PublishDate">Trier par date</a>
+                            </div>
+                            <div class="dropdown-item item-layout">
+                                <i class="menuIcon fa @checkSortByTitle"></i>
+                                <a href="/Medias/SetMediaSortBy?mediaSortBy=@MediaSortBy.Title">Trier par titre</a>
+                            </div>
+                            <div class="dropdown-item item-layout">
+                                <i class="menuIcon fa @checkSortByLikes"></i>
+                                <a href="/Medias/SetMediaSortBy?mediaSortBy=@MediaSortBy.Likes">Trier par j'aime</a>
                             </div>
 
                             <div class="dropdown-divider"></div>

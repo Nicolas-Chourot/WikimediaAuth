@@ -1,0 +1,67 @@
+﻿@model Models.Media
+@{
+    int connectedId = Models.User.ConnectedUser.Id;
+    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == Model.Id && l.UserId == connectedId));
+    string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
+}
+
+@if (Model != null)
+{
+    <dl>
+        <dd>
+
+            @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
+            {
+                <span style="color:grey">[Partagé]</span>
+            }
+        </dd>
+        <dd>
+            @Model.Title  
+           
+        </dd>
+        <dd>
+            <iframe class="mediaPlayerBig"
+                    src="https://www.youtube.com/embed/@Model.YoutubeId?enablejsapi=1"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+            <div>
+                <div style="font-size:0.7em; text-align:right; padding-right:3px; cursor:pointer; color:dodgerblue">
+                    <span title="@Model.UsersLikesList">@Model.LikesCount </span>
+                    <i class="cmdIconSmall @mediaLikedByConnectedUser fa-thumbs-up toggleLikeCmd" mediaid="@Model.Id"></i>
+                </div>
+            </div>
+        </dd>
+        <dd class="description">
+            @Model.Description
+        </dd>
+        <dt>
+            Catégorie
+        </dt>
+
+        <dd>
+            @Model.Category
+        </dd>
+
+        <dt>
+            Date de publication
+        </dt>
+
+        <dd>
+            @Helper.When(Model.PublishDate)
+        </dd>
+        <dt>
+            Ajouté par
+        </dt>
+
+        <dd>
+            @Helper.AvatarUser(Model.Owner)
+        </dd>
+
+    </dl>
+}
+else
+{
+    <h2 style="color:red">Cette vidéo a été effacée...</h2>
+}

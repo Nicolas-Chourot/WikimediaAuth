@@ -12,11 +12,16 @@
 
 @section Scripts {
     <script>
+
+        let mediasListAutoRefreshPanel = null;
+        let categoriesSelectAutoRefreshPanel = null;
+        let ownerSelectAutoRefreshPanel = null;
+
         $(() => {
             newSession(300);
-            let mediasListAutoRefreshPanel = new AutoRefreshedPanel("MediaListPanel", "/Medias/GetMedias", 5, mediasListPostRefresh);
-            let categoriesSelectAutoRefreshPanel = new AutoRefreshedPanel("categorySelectPanel", "/Medias/GetMediasCategoriesList", -1 /* manually refreshed */, categoriesSelectPostRefresh);
-            let ownerSelectAutoRefreshPanel = new AutoRefreshedPanel("ownerSelectPanel", "/Medias/GetMediasOwnersList", -1 /* manually refreshed */, ownerSelectPostRefresh);
+            mediasListAutoRefreshPanel = new AutoRefreshedPanel("MediaListPanel", "/Medias/GetMedias", 5, mediasListPostRefresh);
+            categoriesSelectAutoRefreshPanel = new AutoRefreshedPanel("categorySelectPanel", "/Medias/GetMediasCategoriesList", -1 /* manually refreshed */, categoriesSelectPostRefresh);
+            ownerSelectAutoRefreshPanel = new AutoRefreshedPanel("ownerSelectPanel", "/Medias/GetMediasOwnersList", -1 /* manually refreshed */, ownerSelectPostRefresh);
 
             let keywordsOnchangeTimer = null;
 
@@ -51,9 +56,11 @@
 
                 $("#categorySelect").off();
                 $("#categorySelect").focus(function () {
+                    console.log("$(#categorySelect).focus)");
                     mediasListAutoRefreshPanel.pause();
                 });
                 $("#categorySelect").blur(function () {
+                    console.log("$(#categorySelect).blur)");
                     mediasListAutoRefreshPanel.restart();
                 });
                 $("#categorySelect").on('change', function () {

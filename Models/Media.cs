@@ -7,6 +7,8 @@ using System.Linq;
 
 namespace Models
 {
+    public enum MediaSortBy { Title, PublishDate, Likes }
+
     public class Media : Record
     {
         public string Title { get; set; }

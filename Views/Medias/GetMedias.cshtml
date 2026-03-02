@@ -19,19 +19,21 @@
                             <div class="UserSmallAvatar transparentBackground" style="background-image: url('/Content/UI-Images/shared.png'); margin-right:6px;" title="partagée"></div>
                         }
                     </div>
-                 </a>
-                <div style="display:grid; grid-template-columns:auto 50px; align-items:start" >
-                    <div class="ellipsis">
-                        <div class="ellipsis" style="font-size:0.8em; font-weight:bold">
-                            @media.Title
-                        </div>
-                        <div style="width:50px; color:gray; font-size:0.6em">@media.Category</div>
-                    </div>
+                </a>
+
+                <div class="ellipsis" style="font-size:0.8em; font-weight:bold">
+                    @media.Title
+
+                </div>
+                <div style="display:grid; grid-template-columns:auto 70px; align-items:last baseline">
+                    <div style="color:gray; font-size:0.65em">@media.Category  @Helper.When(media.PublishDate) </div>
                     <div style="text-align:right; padding-right:3px; cursor:pointer; color:dodgerblue">
                         <span title="@media.UsersLikesList">@media.LikesCount </span>
                         <i class="cmdIconSmall @mediaLikedByConnectedUser fa-thumbs-up toggleLikeCmd" mediaid="@media.Id"></i>
                     </div>
+
                 </div>
+               
             </div>
         }
     }

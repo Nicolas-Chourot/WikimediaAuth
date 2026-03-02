@@ -1,65 +1,29 @@
 ﻿@model Models.Media
 @{
     ViewBag.PageTitle = "Détails";
-    int connectedId = Models.User.ConnectedUser.Id;
-    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == Model.Id && l.UserId == connectedId));
-    string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
 }
 
-<div class="detailsPanel">
-    <dl>
-        <dd>
-
-            @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
-            {
-                <span style="color:grey">[Partagé]</span>
-            }
-        </dd>
-        <dd>
-            @Model.Title
-        </dd>
-        <dd>
-            <iframe class="mediaPlayerBig"
-                    src="https://www.youtube.com/embed/@Model.YoutubeId"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-            </iframe>
-        </dd>
-        <dd class="description">
-            @Model.Description
-        </dd>
-        <dt>
-            Catégorie
-        </dt>
-
-        <dd>
-            @Model.Category
-        </dd>
-
-        <dt>
-            Date de publication
-        </dt>
-
-        <dd>
-            @Helper.When(Model.PublishDate)
-        </dd>
-        <dt>
-            Ajouté par
-        </dt>
-
-        <dd>
-            @Helper.AvatarUser(Model.Owner)
-        </dd>
-
-    </dl>
+<div id="detailsPanel" class="detailsPanel">
 </div>
 
 
 @section Scripts {
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
+        let mediaDetails = null;
         $(() => {
-            newSession(300);
+            newSession(3000); 
+            mediaDetails = new AutoRefreshedPanel("detailsPanel", "/Medias/GetMediaDetails", 5, mediaDetailsPostRefresh);
         })
+
+        function mediaDetailsPostRefresh() {
+            $(".toggleLikeCmd").click(function (e) {
+                mediaDetails.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
+                e.preventDefault();
+            });
+           
+            $(".mediaPlayerBig").on("mouseover", function () { mediaDetails.pause();  console.log("iframe over") })
+            $(".mediaPlayerBig").on("mouseleave", function () { mediaDetails.restart(); console.log("iframe leaved") })
+        }
     </script>
 }

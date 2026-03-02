@@ -1,7 +1,7 @@
 .cmdIcon {
     font-size: 1.5rem;
     color: rgb(0, 87, 204);
-    margin-right: 8px;
+    margin-right: 4px;
     cursor: pointer;
     text-decoration: none;
 }
@@ -9,7 +9,9 @@
     .cmdIcon:hover {
         color: rgb(103, 165, 247);
     }
-
+.cmdIconSmall {
+    font-size:1.2rem;
+}
 .menuIcon {
     font-size: 1.2rem;
     text-align: center;
@@ -34,6 +36,7 @@
 
 .menu {
     display: flex;
+   
     gap: 4px;
     justify-content: flex-end;
     align-items: center;
