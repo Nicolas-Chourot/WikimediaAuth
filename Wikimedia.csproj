@@ -223,6 +223,7 @@
     <Content Include="Views\Medias\MediaForm.cshtml" />
     <Content Include="Views\Medias\GetMediasOwnersList.cshtml" />
     <None Include="Properties\PublishProfiles\Wikimedia-2026 - Web Deploy.pubxml" />
+    <Content Include="Views\Medias\GetMediaLikes.cshtml" />
     <Content Include="Views\Medias\GetMediaDetails.cshtml" />
   </ItemGroup>
   <PropertyGroup>

@@ -1,0 +1,18 @@
+﻿@model Models.Media
+@{
+    int connectedId = Models.User.ConnectedUser.Id;
+    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == Model.Id && l.UserId == connectedId));
+    string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
+}
+
+@if (Model != null)
+{
+    <div style="font-size:0.7em; text-align:right; padding-right:3px; cursor:pointer; color:dodgerblue">
+        <span title="@Model.UsersLikesList">@Model.LikesCount </span>
+        <i class="cmdIconSmall @mediaLikedByConnectedUser fa-thumbs-up toggleLikeCmd" mediaid="@Model.Id"></i>
+    </div>
+}
+else
+{
+    <h2 style="color:red">N/A</h2>
+}

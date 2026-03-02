@@ -85,6 +85,26 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
+        public ActionResult GetMediaLikes(bool forceRefresh = false)
+        {
+            try
+            {
+                InitSessionVariables();
+
+                int mediaId = (int)Session["CurrentMediaId"];
+                Media Media = DB.Medias.Get(mediaId);
+
+                if (DB.Likes.HasChanged || forceRefresh)
+                {
+                    return PartialView(Media);
+                }
+                return null;
+            }
+            catch (System.Exception ex)
+            {
+                return Content("Erreur interne" + ex.Message, "text/html");
+            }
+        }
         public ActionResult GetMediaDetails(bool forceRefresh = false)
         {
             try
@@ -94,7 +114,7 @@ namespace Controllers
                 int mediaId = (int)Session["CurrentMediaId"];
                 Media Media = DB.Medias.Get(mediaId);
 
-                if (DB.Medias.HasChanged || DB.Likes.HasChanged || forceRefresh)
+                if (DB.Medias.HasChanged || forceRefresh)
                 {
                     return PartialView(Media);
                 }

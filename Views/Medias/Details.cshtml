@@ -11,17 +11,19 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         let mediaDetails = null;
+        let likes = null;
         $(() => {
             newSession(3000); 
             mediaDetails = new AutoRefreshedPanel("detailsPanel", "/Medias/GetMediaDetails", 5, mediaDetailsPostRefresh);
+            likes = new AutoRefreshedPanel("likesPanel", "/Medias/GetMediaLikes", 5, likesPostRefresh);
         })
-
-        function mediaDetailsPostRefresh() {
+        function likesPostRefresh() {
             $(".toggleLikeCmd").click(function (e) {
-                mediaDetails.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
+                likes.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
                 e.preventDefault();
             });
-           
+        }
+        function mediaDetailsPostRefresh() {
             $(".mediaPlayerBig").on("mouseover", function () { mediaDetails.pause();  console.log("iframe over") })
             $(".mediaPlayerBig").on("mouseleave", function () { mediaDetails.restart(); console.log("iframe leaved") })
         }
