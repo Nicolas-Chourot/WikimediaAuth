@@ -26,19 +26,17 @@
     }
 }
 
-.mediaLayoutx {
-    width: 100% !important;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 1.2em;
-    color: black;
+.mediaLayout {
+    border: 0.1px solid #ccc;
+    border-radius: 5px;
+
 }
 
 .mediaThumbnail {
     width: 100% !important;
     aspect-ratio: 16/9;
-    border-radius: 6px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
     background-size: cover;
     background-position: center;
 }

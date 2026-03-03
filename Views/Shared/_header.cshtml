@@ -27,8 +27,6 @@
 
     var Categories = (List<string>)Session["Categories"];
 
-
-
     bool userConnected = Models.User.ConnectedUser != null;
     bool userIsAdmin = userConnected ? Models.User.ConnectedUser.IsAdmin : false;
     bool userCanWrite = userConnected ? Models.User.ConnectedUser.CanWrite : false;

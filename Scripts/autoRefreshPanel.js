@@ -17,7 +17,7 @@ class AutoRefreshedPanel {
         this.contentServiceURL = contentServiceURL;
         this.panelId = panelId;
         this.postRefreshCallback = postRefreshCallback;
-        
+        this.previousScrollPosition = 0;
         if (refreshRate != -1) { // will be refreshed manually
             this.refresh(true);
             this.refreshRate = refreshRate * 1000; /* convert in miliseconds */
@@ -35,9 +35,17 @@ class AutoRefreshedPanel {
     restart() {
         this.paused = false
     }
+    storeScrollPosition() {
+        this.previousScrollPosition = $("#mainContentPanel").scrollTop();
+    }
+    restoreScrollPosition() {
+        $("#mainContentPanel").scrollTop(this.previousScrollPosition);
+    }
     replaceContent(htmlContent) {
         if (htmlContent !== "") {
+            this.storeScrollPosition();
             $("#" + this.panelId).html(htmlContent);
+            this.restoreScrollPosition();
             console.log(`Panel ${this.panelId} has been refreshed.`);
             if (this.postRefreshCallback != null) this.postRefreshCallback();
         }

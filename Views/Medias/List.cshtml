@@ -18,7 +18,7 @@
         let ownerSelectAutoRefreshPanel = null;
 
         $(() => {
-            newSession(300);
+            newSession(600);
             mediasListAutoRefreshPanel = new AutoRefreshedPanel("MediaListPanel", "/Medias/GetMedias", 5, mediasListPostRefresh);
             categoriesSelectAutoRefreshPanel = new AutoRefreshedPanel("categorySelectPanel", "/Medias/GetMediasCategoriesList", -1 /* manually refreshed */, categoriesSelectPostRefresh);
             ownerSelectAutoRefreshPanel = new AutoRefreshedPanel("ownerSelectPanel", "/Medias/GetMediasOwnersList", -1 /* manually refreshed */, ownerSelectPostRefresh);

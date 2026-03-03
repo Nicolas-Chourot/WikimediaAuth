@@ -9,24 +9,16 @@
 {
     <dl>
         <dd>
-
             @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
             {
                 <span style="color:grey">[Partagé]</span>
             }
         </dd>
         <dd>
-            @Model.Title  
-           
+            @Model.Title
         </dd>
         <dd>
-            <iframe class="mediaPlayerBig"
-                    src="https://www.youtube.com/embed/@Model.YoutubeId?enablejsapi=1"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-            </iframe>
-           
+            @Helper.YoutubePlayer(Model.YoutubeId)
         </dd>
         <dd class="description">
             @Model.Description

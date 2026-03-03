@@ -172,6 +172,7 @@
     <Content Include="Scripts\bootbox.js" />
     <Content Include="Scripts\image-control.js" />
     <Content Include="Scripts\jquery-maskedinput.js" />
+    <Content Include="Scripts\pageManager.js" />
     <Content Include="Scripts\selections.js" />
     <Content Include="Scripts\session.js" />
     <Content Include="Scripts\SiteNotificationsHandler.js" />

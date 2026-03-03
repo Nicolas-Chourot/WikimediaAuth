@@ -2,8 +2,8 @@
     int selectedOwnerId = (int)Session["SelectedMediasOwner"];
 }
 
-<select id="mediasOwnerSelect" class="form-control">
-    <option value="0" selected>Usagers</option>
+<select id="mediasOwnerSelect" class="form-control ellipsis">
+    <option value="0" selected>Tous les usagers</option>
     @foreach (var owner in DAL.DB.Medias.OwnersList())
     {
         string selected = selectedOwnerId == owner.Id ? "selected" : "";
