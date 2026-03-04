@@ -183,12 +183,23 @@
 
     </div>
 </div>
-@if (action == "list" && search)
+@if (search && controller=="medias" && action == "list")
 {
     <div class="searchBar">
         <input type="search" id="searchInput" class="section roundedBorder searchBarItem" value="@searchString" placeholder="Recherche...">
-        <div id="categorySelectPanel" class="searchBarItem">  <!-- Dynamically refreshed --> </div>
-        <div id="ownerSelectPanel" class="searchBarItem">  <!-- Dynamically refreshed --> </div>
+        <div id="categorySelectPanel" class="searchBarItem">
+            <!-- Dynamically refreshed -->
+            @{
+                Html.RenderPartial("GetMediasCategoriesList");
+            }
+
+        </div>
+        <div id="ownerSelectPanel" class="searchBarItem">
+            <!-- Dynamically refreshed -->
+            @{
+                Html.RenderPartial("GetMediasOwnersList");
+            }
+        </div>
     </div>
 }
 

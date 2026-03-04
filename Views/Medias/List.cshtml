@@ -19,8 +19,20 @@
 
         $(() => {
             newSession(600);
-            mediasListAutoRefreshPanel = new AutoRefreshedPanel("MediaListPanel", "/Medias/GetMedias", 5, mediasListPostRefresh);
-            categoriesSelectAutoRefreshPanel = new AutoRefreshedPanel("categorySelectPanel", "/Medias/GetMediasCategoriesList", -1 /* manually refreshed */, categoriesSelectPostRefresh);
+            mediasListAutoRefreshPanel =
+                new AutoRefreshedPanel(
+                    "MediaListPanel",
+                    "/Medias/GetMedias",
+                    5,
+                    mediasListPostRefresh);
+
+            categoriesSelectAutoRefreshPanel =
+                new AutoRefreshedPanel(
+                    "categorySelectPanel",
+                    "/Medias/GetMediasCategoriesList",
+                    -1 /* manually refreshed */,
+                    categoriesSelectPostRefresh);
+
             ownerSelectAutoRefreshPanel = new AutoRefreshedPanel("ownerSelectPanel", "/Medias/GetMediasOwnersList", -1 /* manually refreshed */, ownerSelectPostRefresh);
 
             let keywordsOnchangeTimer = null;
@@ -30,16 +42,16 @@
                 /* delay request by 0.5 seconds */
                 keywordsOnchangeTimer = setTimeout(() => {
                     window.location = "/Medias/SetSearchString?value=" + $("#searchInput").val();
-                }, 500 /* 0.5 seconds */);
+                }, 1000 /* 1 seconds */);
             });
             $("#searchInput").on('search', function () { /* click on clear */
                 clearTimeout(keywordsOnchangeTimer);
                 window.location = "/Medias/SetSearchString?value=" + $("#searchInput").val();
             });
-            $("#searchInput").focus(function () {
+            $("#searchInput").on("focus", function () {
                 mediasListAutoRefreshPanel.pause();
             });
-            $("#searchInput").blur(function () {
+            $("#searchInput").on("blur", function () {
                 mediasListAutoRefreshPanel.restart();
             });
 
@@ -49,18 +61,16 @@
                 $(".toggleLikeCmd").click(function (e) {
                     mediasListAutoRefreshPanel.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
                     e.preventDefault();
-                });  
+                });
             }
 
             function categoriesSelectPostRefresh() {
 
                 $("#categorySelect").off();
-                $("#categorySelect").focus(function () {
-                    console.log("$(#categorySelect).focus)");
+                $("#categorySelect").on("focus", function () {
                     mediasListAutoRefreshPanel.pause();
                 });
-                $("#categorySelect").blur(function () {
-                    console.log("$(#categorySelect).blur)");
+                $("#categorySelect").on("blur", function () {
                     mediasListAutoRefreshPanel.restart();
                 });
                 $("#categorySelect").on('change', function () {
@@ -71,10 +81,10 @@
             function ownerSelectPostRefresh() {
 
                 $("#mediasOwnerSelect").off();
-                $("#mediasOwnerSelect").focus(function () {
+                $("#mediasOwnerSelect").on("focus", function () {
                     mediasListAutoRefreshPanel.pause();
                 });
-                $("#mediasOwnerSelect").blur(function () {
+                $("#mediasOwnerSelect").on("blur", function () {
                     mediasListAutoRefreshPanel.restart();
                 });
                 $("#mediasOwnerSelect").on('change', function () {

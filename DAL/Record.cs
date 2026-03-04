@@ -10,7 +10,6 @@ namespace DAL
     }
     public static class JsonUtilities
     {
-
         public static T Copy<T>(this T source)
         {
             if (Object.ReferenceEquals(source, null))
