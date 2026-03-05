@@ -6,7 +6,6 @@ namespace Models
 {
     public class LikesRepository : Repository<Like>
     {
-
         public void ToggleLike(int mediaId, int userId)
         {
             Like like = ToList().Where(l => (l.MediaId == mediaId && l.UserId == userId)).FirstOrDefault();

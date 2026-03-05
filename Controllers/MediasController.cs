@@ -142,7 +142,7 @@ namespace Controllers
             {
                 IEnumerable<Media> result = null;
                 // Must evaluate HasChanged before forceRefresh, this will fix an usefull refresh
-                if (DB.Medias.HasChanged || DB.Likes.HasChanged || forceRefresh)
+                if (DB.Users.HasChanged || DB.Medias.HasChanged || DB.Likes.HasChanged || forceRefresh)
                 {
                     // forceRefresh is true when a related view is produce
                     // DB.Medias.HasChanged is true when a change has been applied on any Media
@@ -321,26 +321,7 @@ namespace Controllers
         [UserAccess(Models.Access.Write)]
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        public ActionResult Edit(Media Media, string sharedCB = "off")
-        {
-            // Has explained earlier, id of Media is stored server side an not provided in form data
-            // passed in the method in order to prever from malicious requests
 
-            int id = Session["CurrentMediaId"] != null ? (int)Session["CurrentMediaId"] : 0;
-
-            // Make sure that the Media of id really exist
-            Media storedMedia = DB.Medias.Get(id);
-            if (storedMedia != null)
-            {
-                Media.OwnerId = storedMedia.OwnerId;
-                Media.PublishDate = storedMedia.PublishDate;
-                Media.Shared = sharedCB == "on";
-                Media.Id = id; // patch the Id
-                DB.Medias.Update(Media);
-                DB.Events.Add("Edit", Media.Title);
-            }
-            return RedirectToAction("Details/" + id);
-        }
 
         [UserAccess(Models.Access.Write)]
         public ActionResult Delete()
