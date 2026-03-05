@@ -106,7 +106,9 @@ namespace Controllers
         public ActionResult Subscribe(User user, string NotifyCB = "off")
         {
             user.Notify = NotifyCB == "on";
+            Models.User.ConnectedUser = user;
             DB.Users.Add(user);
+            Models.User.ConnectedUser = null;
             DB.Events.Add("Subscribe");
             AccountsEmailing.SendEmailVerification(Url.Action("VerifyUser", "Accounts", null, Request.Url.Scheme), user);
             return Redirect("/Accounts/Login?message=Création de compte effectuée avec succès! Un courriel de confirmation d'adresse vous a été envoyé.");
@@ -205,7 +207,7 @@ namespace Controllers
             }
             return Redirect("/Accounts/Login?message=Erreur de modification de courriel!&success=false");
         }
-        [UserAccess]
+        [UserAccess(Models.Access.View)]
         public ActionResult EditProfil()
         {
             User connectedUser = Models.User.ConnectedUser;
@@ -217,7 +219,7 @@ namespace Controllers
             return Redirect(RouteConfig.DefaultAction());
         }
 
-        [UserAccess]
+        [UserAccess(Models.Access.View)]
         [HttpPost]
         [ValidateAntiForgeryToken()]
         public ActionResult EditProfil(User user, string NotifyCB = "off")
