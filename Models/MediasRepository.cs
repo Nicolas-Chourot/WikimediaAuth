@@ -34,7 +34,11 @@ namespace Models
         public override bool Delete(int Id)
         {
             Media media = Get(Id);
-            if (media != null) media.DeleteLikes();
+            if (media != null)
+            {
+                media.DeleteLikes();
+                DB.Comments.DeleteCommentByMediaId(Id);
+            }
             return base.Delete(Id);
         }
     }

@@ -32,5 +32,10 @@ namespace Models
             List<Like> list = ToList().Where(l => l.UserId == userId).ToList().Copy();
             list.ForEach(l => Delete(l.Id));
         }
+        public void DeleteByCommentId(int commentId)
+        {
+            List<Like> list = ToList().Where(l => l.CommentId == commentId).ToList();
+            list.ForEach(l => Delete(l.Id));
+        }
     }
 }

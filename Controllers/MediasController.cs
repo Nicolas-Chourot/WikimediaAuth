@@ -11,6 +11,8 @@ namespace Controllers
     [UserAccess(Models.Access.View)]
     public class MediasController : Controller
     {
+        const string IllegalAccessUrl = "/Accounts/Login?message=Tentative d'accès illégal!&success=false";
+
         private void InitSessionVariables()
         {
             // Session is a dictionary that hold keys values specific to a session
@@ -64,6 +66,24 @@ namespace Controllers
             {
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
+        }
+        public ActionResult Comments(int mediaId, int parentId = 0)
+        {
+            List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == parentId).ToList();
+            return PartialView("RenderComments", comments);
+        }
+        public ActionResult GetComments(bool forceRefresh = false)
+        {
+            if (Session["CurrentMediaId"] != null)
+            {
+                int mediaId = (int)Session["CurrentMediaId"];
+                if (forceRefresh || true) // always refresh
+                {
+                    List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == 0).ToList();
+                    return PartialView("RenderComments", comments);
+                }
+            }
+            return null;
         }
 
         public ActionResult GetMediasOwnersList(bool forceRefresh = false)
@@ -364,5 +384,56 @@ namespace Controllers
             DB.Events.Add("ToggleMediaLike", media.Title);
             return null;
         }
+        [HttpPost]
+        public ActionResult CreateComment(int parentId, string commentText)
+        {
+            DB.Comments.Add(new Comment
+            {
+                OwnerId = Models.User.ConnectedUser.Id,
+                CreationDate = DateTime.Now,
+                ParentId = parentId,
+                Text = commentText,
+                MediaId = (int)Session["CurrentMediaId"]
+            });
+            return null;
+        }
+
+        [HttpPost]
+        public ActionResult UpdateComment(int commentId, string commentText)
+        {
+            User connectedUser = Models.User.ConnectedUser;
+            Comment comment = DB.Comments.Get(commentId);
+            if (comment != null && comment.Owner.Id == connectedUser.Id)
+            {
+                comment.Text = commentText;
+                DB.Comments.Update(comment);
+            }
+            return null;
+        }
+
+
+        public ActionResult DeleteComment(int id)
+        {
+            Comment comment = DB.Comments.Get(id);
+            if (comment != null)
+            {
+                User connectedUser = Models.User.ConnectedUser;
+                if (connectedUser.IsAdmin || comment.OwnerId == connectedUser.Id)
+                {
+                    DB.Comments.Delete(id);
+                    return null;
+                }
+                else
+                    return Redirect(IllegalAccessUrl);
+            }
+            return Redirect(IllegalAccessUrl);
+        }
+
+        public ActionResult ToggleCommentLike(int id)
+        {
+            DB.Comments.ToggleComment(id, Models.User.ConnectedUser.Id);
+            return null;
+        }
+
     }
 }

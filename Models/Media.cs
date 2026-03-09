@@ -1,7 +1,6 @@
 ﻿using DAL;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -75,5 +74,7 @@ namespace Models
             likes.Copy().ForEach(m => DB.Likes.Delete(m.Id));
             return true;
         }
+        
+        
     }
 }

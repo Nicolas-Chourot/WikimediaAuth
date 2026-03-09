@@ -7,7 +7,8 @@ namespace Models
     public class Like :Record
     {
         public int UserId { get; set; }
-        public int MediaId { get; set; }
+        public int MediaId { get; set; } = 0;
+        public int CommentId { get; set; } = 0;
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
         [JsonIgnore]

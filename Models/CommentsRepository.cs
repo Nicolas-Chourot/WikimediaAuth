@@ -1,0 +1,94 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Linq;
+using System.Web;
+using System.Xml.Linq;
+using DAL;
+
+namespace Models
+{
+    public class CommentsRepository : Repository<Comment>
+    {
+        public void ToggleComment(int parentId, int userId)
+        {
+            Like like = DB.Likes.ToList().FirstOrDefault(l => l.CommentId == parentId && l.UserId == userId);
+            Comment comment = DB.Comments.Get(parentId);
+
+            if (like != null)
+            {
+                BeginTransaction();
+                DB.Likes.Delete(like.Id);
+                EndTransaction();
+            }
+            else
+            {
+                BeginTransaction();
+                DB.Likes.Add(new Like
+                {
+                    CommentId = parentId,
+                    UserId = userId,
+                });
+                EndTransaction();
+            }
+        }
+
+        public void DeleteByOwnerId(int ownerId)
+        {
+            List<Comment> list = ToList().Where(p => p.OwnerId == ownerId).ToList();
+            foreach (var comment in list)
+            {
+                DeleteAllComments(comment.Id);
+            }
+        }
+
+
+        public override bool Delete(int commentId)
+        {
+            try
+            {
+                Comment commentToDelete = DB.Comments.Get(commentId);
+                if (commentToDelete != null)
+                {
+                    BeginTransaction();
+                    DeleteAllComments(commentId);
+                    base.Delete(commentId);
+                    EndTransaction();
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Delete comment failed : Message - {ex.Message}");
+                EndTransaction();
+                return false;
+            }
+        }
+
+
+        public void DeleteCommentByMediaId(int mediaId)
+        {
+            List<Comment> list = ToList().Where(l => l.MediaId == mediaId && l.ParentId == 0).ToList();
+            foreach (var comment in list)
+            {
+                DeleteAllComments(comment.Id);
+            }
+           
+        }
+
+        public void DeleteAllComments(int commentId)
+        {
+            DB.Likes.DeleteByCommentId(commentId);
+
+            List<Comment> enfants = ToList().Where(c => c.ParentId == commentId).ToList();
+            foreach (var enfant in enfants)
+            {
+                DeleteAllComments(enfant.Id);
+            }
+            base.Delete(commentId);
+        }
+    }
+
+}

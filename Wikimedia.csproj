@@ -123,6 +123,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Comment.cs" />
+    <Compile Include="Models\CommentsRepository.cs" />
     <Compile Include="Models\EmailView.cs" />
     <Compile Include="Models\Event.cs" />
     <Compile Include="Models\EventsRepository.cs" />
@@ -226,6 +228,7 @@
     <None Include="Properties\PublishProfiles\Wikimedia-2026 - Web Deploy.pubxml" />
     <Content Include="Views\Medias\GetMediaLikes.cshtml" />
     <Content Include="Views\Medias\GetMediaDetails.cshtml" />
+    <Content Include="Views\Medias\RenderComments.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

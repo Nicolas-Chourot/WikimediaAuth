@@ -1,5 +1,6 @@
 using DAL;
 using EmailHandling;
+using Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -53,6 +54,10 @@ namespace Wikimedia
             foreach (var like in DB.Likes.ToList().Copy())
             {
                 if (like.User == null || like.Media == null) DB.Likes.Delete(like.Id);
+            }
+            foreach (Models.Comment comment in DB.Comments.ToList().Copy())
+            {
+                if (comment.Owner == null || comment.Media == null) DB.RenewPasswordCommands.Delete(comment.Id);
             }
             foreach (var notification in DB.Notifications.ToList().Copy())
             {

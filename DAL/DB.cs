@@ -33,5 +33,8 @@ namespace DAL
 
         static public LikesRepository Likes { get; set; }
            = new LikesRepository();
+
+        static public CommentsRepository Comments { get; set; }
+           = new CommentsRepository();
     }
 }

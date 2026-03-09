@@ -96,6 +96,10 @@ namespace Models
                 DB.Medias.Delete(media.Id);
             }
         }
+        public void DeleteComments()
+        {
+            DB.Comments.DeleteByOwnerId(Id);
+        }
         private static List<int> GetOnlineUser()
         {
             if (HttpRuntime.Cache["onlineUsers"] == null)
