@@ -8,7 +8,9 @@
         {
             bool writeAccess = Models.User.ConnectedUser.IsAdmin || media.OwnerId == connectedId;
             bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == media.Id && l.UserId == connectedId));
+            bool userComment = DAL.DB.Comments.ToList().Exists(l => (l.MediaId == media.Id && l.OwnerId == connectedId));
             string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
+            string mediaCommentByConnectedUser = userComment ? "fa-solid" : "fa-regular";
 
             <div class="mediaLayout">
                 <a href="/Medias/Details/@media.Id" title="Voir les détails de @media.Title" style="text-decoration:none; width:100% !important">
@@ -24,9 +26,13 @@
                 <div class="ellipsis" style="margin-left: 4px; margin-right: 4px; font-size: 0.8em; font-weight: bold">
                     @media.Title
                 </div>
-                <div style="display:grid; grid-template-columns:auto 70px; align-items:last baseline">
+                <div style="display: grid; grid-template-columns: auto 120px; align-items: last baseline ">
+                    
                     <div style="margin-left: 4px; color: gray; font-size: 0.65em">@media.Category  @Helper.When(media.PublishDate) </div>
-                    <div style="text-align:right; padding-right:4px; cursor:pointer; color:dodgerblue">
+                    
+                    <div style="display: flex; justify-content: flex-end; gap: 5px; align-items: center; padding-right: 4px; cursor: pointer; color: dodgerblue">
+                        <span title="@media.UsersCommentList">@media.CommentsCount </span>
+                        <i class="cmdIconSmall @mediaCommentByConnectedUser fa-comment"></i>
                         <span title="@media.UsersLikesList">@media.LikesCount </span>
                         <i class="cmdIconSmall @mediaLikedByConnectedUser fa-thumbs-up toggleLikeCmd" mediaid="@media.Id"></i>
                     </div>

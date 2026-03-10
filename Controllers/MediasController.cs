@@ -77,7 +77,7 @@ namespace Controllers
             if (Session["CurrentMediaId"] != null)
             {
                 int mediaId = (int)Session["CurrentMediaId"];
-                if (forceRefresh || true) // always refresh
+                if (DB.Comments.HasChanged || forceRefresh)
                 {
                     List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == 0).ToList();
                     return PartialView("RenderComments", comments);
@@ -162,7 +162,7 @@ namespace Controllers
             {
                 IEnumerable<Media> result = null;
                 // Must evaluate HasChanged before forceRefresh, this will fix an usefull refresh
-                if (DB.Users.HasChanged || DB.Medias.HasChanged || DB.Likes.HasChanged || forceRefresh)
+                if (DB.Users.HasChanged || DB.Medias.HasChanged || DB.Likes.HasChanged || DB.Comments.HasChanged || forceRefresh)
                 {
                     // forceRefresh is true when a related view is produce
                     // DB.Medias.HasChanged is true when a change has been applied on any Media
@@ -341,7 +341,23 @@ namespace Controllers
         [UserAccess(Models.Access.Write)]
         [HttpPost]
         [ValidateAntiForgeryToken()]
+        public ActionResult Edit(Media Media)
+        {
+            // Has explained earlier, id of Media is stored server side an not provided in form data
+            // passed in the method in order to prever from malicious requests
 
+            int id = Session["CurrentMediaId"] != null ? (int)Session["CurrentMediaId"] : 0;
+
+            // Make sure that the Media of id really exist
+            Media storedMedia = DB.Medias.Get(id);
+            if (storedMedia != null)
+            {
+                Media.Id = id; // patch the Id
+                Media.PublishDate = storedMedia.PublishDate; // keep orignal PublishDate
+                DB.Medias.Update(Media);
+            }
+            return RedirectToAction("Details/" + id);
+        }
 
         [UserAccess(Models.Access.Write)]
         public ActionResult Delete()
@@ -387,14 +403,18 @@ namespace Controllers
         [HttpPost]
         public ActionResult CreateComment(int parentId, string commentText)
         {
-            DB.Comments.Add(new Comment
+            int currentMediaId = (int)Session["CurrentMediaId"];
+            if (currentMediaId != 0)
             {
-                OwnerId = Models.User.ConnectedUser.Id,
-                CreationDate = DateTime.Now,
-                ParentId = parentId,
-                Text = commentText,
-                MediaId = (int)Session["CurrentMediaId"]
-            });
+                DB.Comments.Add(new Comment
+                {
+                    OwnerId = Models.User.ConnectedUser.Id,
+                    CreationDate = DateTime.Now,
+                    ParentId = parentId,
+                    Text = commentText,
+                    MediaId = currentMediaId
+                });
+            }
             return null;
         }
 

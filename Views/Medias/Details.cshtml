@@ -48,7 +48,7 @@
             mediaDetails_ARP = new AutoRefreshedPanel("detailsPanel", "/Medias/GetMediaDetails", 5, mediaDetailsPostRefresh);
             likes = new AutoRefreshedPanel("likesPanel", "/Medias/GetMediaLikes", 5, likesPostRefresh);
             commentsSection = new AutoRefreshedPanel("commentsSection", "/Medias/GetComments", 5, commentsSectionAttachEvents);
-            commentsSectionAttachEvents();
+            //commentsSectionAttachEvents();
         })
         function likesPostRefresh() {
             $(".toggleLikeCmd").click(function (e) {

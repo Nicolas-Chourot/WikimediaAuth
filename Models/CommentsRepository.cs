@@ -1,10 +1,11 @@
-﻿using System;
+﻿using DAL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Web;
+using System.Web.UI.WebControls;
 using System.Xml.Linq;
-using DAL;
 
 namespace Models
 {
@@ -41,7 +42,12 @@ namespace Models
                 DeleteAllComments(comment.Id);
             }
         }
-
+        public override int Add(Comment data)
+        {
+            Comment comment = DB.Comments.Get(base.Add(data));
+            comment.Media.ResetCountsCalc();
+            return comment.Id;
+        }
 
         public override bool Delete(int commentId)
         {
@@ -50,10 +56,12 @@ namespace Models
                 Comment commentToDelete = DB.Comments.Get(commentId);
                 if (commentToDelete != null)
                 {
+                    Media relatedMedia = commentToDelete.Media;
                     BeginTransaction();
                     DeleteAllComments(commentId);
                     base.Delete(commentId);
                     EndTransaction();
+                    relatedMedia.ResetCountsCalc();
                     return true;
                 }
 

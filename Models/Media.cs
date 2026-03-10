@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Models
 {
@@ -23,14 +24,18 @@ namespace Models
                 
         [JsonIgnore]
         private int _likesCount = -1;
-
         [JsonIgnore]
         private List<Like> _likesList = null;
-
+        [JsonIgnore]
+        private int _commentsCount = -1;
+        [JsonIgnore]
+        private List<Comment> _commentsList = null;
         public void ResetCountsCalc()
         {
             _likesCount = -1;
             _likesList = null;
+            _commentsCount = -1;
+            _commentsList = null;
         }
         [JsonIgnore]
         public int LikesCount
@@ -48,7 +53,7 @@ namespace Models
             get
             {
                 if (_likesList == null)
-                    _likesList = DB.Likes.ToList().Where(l => l.MediaId == Id).ToList();
+                    _likesList = DB.Likes.ToList().Where(l => l.MediaId == Id && l.CommentId == 0).ToList();
                 return _likesList;
             }
         }
@@ -74,7 +79,41 @@ namespace Models
             likes.Copy().ForEach(m => DB.Likes.Delete(m.Id));
             return true;
         }
-        
-        
+
+        [JsonIgnore]
+        public string UsersCommentList
+        {
+            get
+            {
+                string UsersCommentList = "";
+                foreach (var comment in Comments)
+                {
+                    string name = DB.Users.Get(comment.OwnerId).Name;
+                    if (!UsersCommentList.Contains(name))
+                        UsersCommentList += DB.Users.Get(comment.OwnerId).Name + "\n";
+                }
+                return UsersCommentList;
+            }
+        }
+        [JsonIgnore]
+        public int CommentsCount
+        {
+            get
+            {
+                if (_commentsCount == -1)
+                    _commentsCount = Comments.Count();
+                return _commentsCount;
+            }
+        }
+        [JsonIgnore]
+        public List<Comment> Comments
+        {
+            get
+            {
+                if (_commentsList == null)
+                    _commentsList = DB.Comments.ToList().Where(c => c.MediaId == Id && c.ParentId == 0).ToList();
+                return _commentsList;
+            }
+        }
     }
 }
