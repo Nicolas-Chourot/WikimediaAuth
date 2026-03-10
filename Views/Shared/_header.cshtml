@@ -16,6 +16,7 @@
     string checkSortByTitle = mediaSortBy == MediaSortBy.Title ? "fa-check" : "";
     string checkSortByDate = mediaSortBy == MediaSortBy.PublishDate ? "fa-check" : "";
     string checkSortByLikes = mediaSortBy == MediaSortBy.Likes ? "fa-check" : "";
+    string checkSortByComments = mediaSortBy == MediaSortBy.Comments ? "fa-check" : "";
     string iconSortBy = "";
     string iconSortByTitle = "";
     switch (mediaSortBy)
@@ -130,7 +131,7 @@
                                 <a href="/Medias/SetMediaSortBy?mediaSortBy=@MediaSortBy.Likes">Trier par j'aime</a>
                             </div>
                             <div class="dropdown-item item-layout">
-                                <i class="menuIcon fa @checkSortByLikes"></i>
+                                <i class="menuIcon fa @checkSortByComments"></i>
                                 <a href="/Medias/SetMediaSortBy?mediaSortBy=@MediaSortBy.Comments">Trier par nombre de commentaires</a>
                             </div>
 
