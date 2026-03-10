@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace Models
 {
-    public enum MediaSortBy { Title, PublishDate, Likes }
+    public enum MediaSortBy { Title, PublishDate, Likes, Comments }
 
     public class Media : Record
     {
@@ -85,7 +85,7 @@ namespace Models
         {
             get
             {
-                string UsersCommentList = "";
+                string UsersCommentList = "Usagers qui ont commenté :" + "\n";
                 foreach (var comment in Comments)
                 {
                     string name = DB.Users.Get(comment.OwnerId).Name;
@@ -111,7 +111,7 @@ namespace Models
             get
             {
                 if (_commentsList == null)
-                    _commentsList = DB.Comments.ToList().Where(c => c.MediaId == Id && c.ParentId == 0).ToList();
+                    _commentsList = DB.Comments.ToList().Where(c => c.MediaId == Id).ToList();
                 return _commentsList;
             }
         }

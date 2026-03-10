@@ -77,11 +77,10 @@ namespace Controllers
             if (Session["CurrentMediaId"] != null)
             {
                 int mediaId = (int)Session["CurrentMediaId"];
-                if (DB.Comments.HasChanged || forceRefresh)
-                {
-                    List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == 0).ToList();
-                    return PartialView("RenderComments", comments);
-                }
+
+                List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == 0).ToList();
+                return PartialView("RenderComments", comments);
+
             }
             return null;
         }
@@ -161,6 +160,7 @@ namespace Controllers
             try
             {
                 IEnumerable<Media> result = null;
+              
                 // Must evaluate HasChanged before forceRefresh, this will fix an usefull refresh
                 if (DB.Users.HasChanged || DB.Medias.HasChanged || DB.Likes.HasChanged || DB.Comments.HasChanged || forceRefresh)
                 {
@@ -212,6 +212,8 @@ namespace Controllers
                                 result = result.OrderByDescending(c => c.PublishDate); break;
                             case MediaSortBy.Likes:
                                 result = result.OrderByDescending(c => c.LikesCount); break;
+                            case MediaSortBy.Comments:
+                                result = result.OrderByDescending(c => c.CommentsCount); break;
                         }
                     }
                     return PartialView(result);

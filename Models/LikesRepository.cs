@@ -12,14 +12,13 @@ namespace Models
 
             if (like != null)
             {
-                DB.Notifications.Push(like.Media.OwnerId, like.User.Name + " n'aime plus votre photo \n[" + like.Media.Title + "]");
+                DB.Notifications.Push(like.Media.OwnerId, like.User.Name + " n'aime plus votre commentaire \n");
                 Delete(like.Id);
             }
             else
             {
-                like = new Like { MediaId = mediaId, UserId = userId };
-                DB.Notifications.Push(like.Media.OwnerId, like.User.Name + " aime votre vidéo \n[" + like.Media.Title + "]");
-                Add(like);
+                DB.Notifications.Push(like.Media.OwnerId, like.User.Name + " aime votre commentaire \n");
+                Add(new Like { MediaId = mediaId, UserId = userId });
             }
         }
         public void DeleteByMediaId(int mediaId)

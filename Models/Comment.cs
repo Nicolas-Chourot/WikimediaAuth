@@ -33,6 +33,6 @@ namespace Models
         [JsonIgnore]
         public User Owner => DB.Users.Get(OwnerId);
         [JsonIgnore]
-        public Media Media => DB.Medias.Get(OwnerId);
+        public Media Media => DB.Medias.Get(MediaId);
     }
 }

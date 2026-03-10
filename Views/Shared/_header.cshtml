@@ -23,6 +23,7 @@
         case MediaSortBy.Title: iconSortBy = "fa-solid fa-t"; iconSortByTitle = "Tri des vidéos par titre"; break;
         case MediaSortBy.PublishDate: iconSortBy = "fa-regular fa-calendar"; iconSortByTitle = "Tri des vidéos par date de publication"; break;
         case MediaSortBy.Likes: iconSortBy = "fa-regular fa-thumbs-up"; iconSortByTitle = "Tri des vidéos par nombre de j'aime"; break;
+        case MediaSortBy.Comments: iconSortBy = "fa-regular fa-comment"; iconSortByTitle = "Tri des vidéos par nombre de commentaires"; break;
     }
 
     var Categories = (List<string>)Session["Categories"];
@@ -127,6 +128,10 @@
                             <div class="dropdown-item item-layout">
                                 <i class="menuIcon fa @checkSortByLikes"></i>
                                 <a href="/Medias/SetMediaSortBy?mediaSortBy=@MediaSortBy.Likes">Trier par j'aime</a>
+                            </div>
+                            <div class="dropdown-item item-layout">
+                                <i class="menuIcon fa @checkSortByLikes"></i>
+                                <a href="/Medias/SetMediaSortBy?mediaSortBy=@MediaSortBy.Comments">Trier par nombre de commentaires</a>
                             </div>
 
                             <div class="dropdown-divider"></div>
