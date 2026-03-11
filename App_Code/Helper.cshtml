@@ -269,11 +269,13 @@
                         {
                             youtubeId = youtubeId.Substring(0, youtubeId.IndexOf("&"));
                         }
-                        string youtubeThumbnail = "https://i3.ytimg.com/vi/" + youtubeId + "/maxresdefault.jpg";
                         <br />
-                        <a href="@token" target="_blank">
-                            <img class="contentImage" src="@youtubeThumbnail" alt="" />
-                        </a>
+                        <iframe class="mediaPlayerBig"
+                                src="https://www.youtube.com/embed/@youtubeId"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>                     
                         <br />
                     }
                     else
