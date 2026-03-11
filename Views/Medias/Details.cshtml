@@ -6,36 +6,46 @@
 }
 
 <div id="detailsPanel" class="detailsPanel">
-</div>
-<hr />
-<!-- Create new comment command icon -->
-<div class="commentFooter ">
-    <h4 style="margin-left:22px;">Commentaires</h4>
-    <div class="commentSubFooter" style="font-size:1em">
-        <i class="newCommentCmd cmdIcon fa-regular fa-comment" style="margin-top:-3px; z-index:1;font-size:1.5em" parentId="0" title="Ajouter un commentaire"></i>
-    </div>
+    <!-- auto refreshed -->
 </div>
 
-<details open style="position:relative; top:-40px;" id="commentDetails">
-    <summary style="border: none; background: none; "></summary>
+@if (Model != null)
+{
 
-    <!-- All comments rendering -->
-    <div class="commentsSection" id="commentsSection"> <!-- auto refreshed --> </div>
-
-    <!-- Hidden programmatically new comment UI -->
-    <div class="newCommentLayout" mediaId="@currentMedia" createCommentparentId="0">
-        <div class="UserSmallAvatar" style="background-image:url('@user.Avatar')" title="@user.Name"></div>
-        <textarea class="form-control" rows="1" placeholder="commenter"></textarea>
-        <div><!--spacer--></div>
-        <div class="editCommentFooter">
-            <div><!--spacer--></div>
-            <!-- Commit create command icon -->
-            <span class="createCommentCmd cmdIconSmall fa fa-check" parentId="0"></span>
-            <!-- Abort update command icon -->
-            <span class="abortCreateCommentCmd cmdIconSmall fa fa-times" parentId="0"></span>
+    bool isVisible = Model.Shared || Models.User.ConnectedUser.IsAdmin || Model.OwnerId == user.Id;
+    if (isVisible)
+    {
+        <hr />
+        <!-- Create new comment command icon -->
+        <div class="commentFooter ">
+            <h4 style="margin-left:22px;">Commentaires</h4>
+            <div class="commentSubFooter" style="font-size:1em">
+                <i class="newCommentCmd cmdIcon fa-regular fa-comment" style="margin-top:-3px; z-index:1;font-size:1.5em" parentId="0" title="Ajouter un commentaire"></i>
+            </div>
         </div>
-    </div>
-</details>
+
+        <details open style="position:relative; top:-40px;" id="commentDetails">
+            <summary style="border: none; background: none; "></summary>
+
+            <!-- All comments rendering -->
+            <div class="commentsSection" id="commentsSection"> <!-- auto refreshed --> </div>
+
+            <!-- Hidden programmatically new comment UI -->
+            <div class="newCommentLayout" mediaId="@currentMedia" createCommentparentId="0">
+                <div class="UserSmallAvatar" style="background-image:url('@user.Avatar')" title="@user.Name"></div>
+                <textarea class="form-control" rows="1" placeholder="commenter"></textarea>
+                <div><!--spacer--></div>
+                <div class="editCommentFooter">
+                    <div><!--spacer--></div>
+                    <!-- Commit create command icon -->
+                    <span class="createCommentCmd cmdIconSmall fa fa-check" parentId="0"></span>
+                    <!-- Abort update command icon -->
+                    <span class="abortCreateCommentCmd cmdIconSmall fa fa-times" parentId="0"></span>
+                </div>
+            </div>
+        </details>
+    }
+}
 
 @section Scripts {
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -55,10 +65,12 @@
                 likes.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
                 e.preventDefault();
             });
+            commentsSection.refreh(true);
         }
         function mediaDetailsPostRefresh() {
             $(".mediaPlayerBig").on("mouseover", function () { mediaDetails_ARP.pause(); })
             $(".mediaPlayerBig").on("mouseleave", function () { mediaDetails_ARP.restart(); })
+            commentsSection.refreh(true);
         }
         function commentsSectionAttachEvents() {
             $("#commentDetails .fa-thumbs-up").off();

@@ -1,52 +1,59 @@
 ﻿@model Models.Media
-@{
-    int connectedId = Models.User.ConnectedUser.Id;
-    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == Model.Id && l.UserId == connectedId));
-    string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
-}
 
 @if (Model != null)
 {
-    <dl>
-        <dd>
-            @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
-            {
-                <span style="color:grey">[Partagé]</span>
-            }
-        </dd>
-        <dd>
-            @Model.Title
-        </dd>
-        <dd>
-            @Helper.YoutubePlayer(Model.YoutubeId)
-        </dd>
-        <dd class="description">
-            @Model.Description
-        </dd>
-        <dt>
-            Catégorie
-        </dt>
+    int connectedId = Models.User.ConnectedUser.Id;
+    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == Model.Id && l.UserId == connectedId));
+    string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
+    bool isVisible = Model.Shared || Models.User.ConnectedUser.IsAdmin || Model.OwnerId == connectedId ;
 
-        <dd>
-            @Model.Category
-        </dd>
+    if (isVisible)
+    {
+        <dl>
+            <dd>
+                @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
+                {
+                    <span style="color:grey">[Partagé]</span>
+                }
+            </dd>
+            <dd>
+                @Model.Title
+            </dd>
+            <dd>
+                @Helper.YoutubePlayer(Model.YoutubeId)
+            </dd>
+            <dd class="description">
+                @Model.Description
+            </dd>
+            <dt>
+                Catégorie
+            </dt>
 
-        <dt>
-            Date de publication
-        </dt>
+            <dd>
+                @Model.Category
+            </dd>
 
-        <dd>
-            @Helper.When(Model.PublishDate)
-        </dd>
-        <dt>
-            Ajouté par
-        </dt>
+            <dt>
+                Date de publication
+            </dt>
 
-        <dd>
-            @Helper.AvatarUser(Model.Owner)
-        </dd>
+            <dd>
+                @Helper.When(Model.PublishDate)
+            </dd>
+            <dt>
+                Ajouté par
+            </dt>
 
-    </dl>
+            <dd>
+                @Helper.AvatarUser(Model.Owner)
+            </dd>
+
+        </dl>
+    }
+    else
+    {
+        <h2 style="color:red">Cette vidéo n'est plus partagée...</h2>
+    }
 }
 else
 {

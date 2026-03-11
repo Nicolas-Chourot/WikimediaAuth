@@ -67,6 +67,7 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
+
         public ActionResult Comments(int mediaId, int parentId = 0)
         {
             List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == parentId).ToList();
@@ -76,11 +77,15 @@ namespace Controllers
         {
             if (Session["CurrentMediaId"] != null)
             {
-                int mediaId = (int)Session["CurrentMediaId"];
+                if (DB.Comments.HasChanged || 
+                    DB.Likes.HasChanged || 
+                    forceRefresh)
+                {
+                    int mediaId = (int)Session["CurrentMediaId"];
 
-                List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == 0).ToList();
-                return PartialView("RenderComments", comments);
-
+                    List<Comment> comments = DB.Comments.ToList().Where(c => c.MediaId == mediaId && c.ParentId == 0).ToList();
+                    return PartialView("RenderComments", comments);
+                }
             }
             return null;
         }
@@ -132,8 +137,7 @@ namespace Controllers
 
                 int mediaId = (int)Session["CurrentMediaId"];
                 Media Media = DB.Medias.Get(mediaId);
-
-                if (DB.Medias.HasChanged || forceRefresh)
+                if (DB.Users.HasChanged || DB.Medias.HasChanged || forceRefresh)
                 {
                     return PartialView(Media);
                 }
@@ -160,13 +164,13 @@ namespace Controllers
             try
             {
                 IEnumerable<Media> result = null;
-              
-                // Must evaluate HasChanged before forceRefresh, this will fix an usefull refresh
-                if (DB.Users.HasChanged || DB.Medias.HasChanged || DB.Likes.HasChanged || DB.Comments.HasChanged || forceRefresh)
+                
+                if (DB.Users.HasChanged || 
+                    DB.Medias.HasChanged || 
+                    DB.Likes.HasChanged || 
+                    DB.Comments.HasChanged || 
+                    forceRefresh)
                 {
-                    // forceRefresh is true when a related view is produce
-                    // DB.Medias.HasChanged is true when a change has been applied on any Media
-
                     InitSessionVariables();
                     bool search = (bool)Session["Search"];
                     string searchString = (string)Session["SearchString"];
@@ -343,7 +347,7 @@ namespace Controllers
         [UserAccess(Models.Access.Write)]
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        public ActionResult Edit(Media Media)
+        public ActionResult Edit(Media Media, string sharedCB = "off")
         {
             // Has explained earlier, id of Media is stored server side an not provided in form data
             // passed in the method in order to prever from malicious requests
@@ -355,6 +359,7 @@ namespace Controllers
             if (storedMedia != null)
             {
                 Media.Id = id; // patch the Id
+                Media.Shared = sharedCB == "on";
                 Media.PublishDate = storedMedia.PublishDate; // keep orignal PublishDate
                 DB.Medias.Update(Media);
             }
