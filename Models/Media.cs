@@ -53,7 +53,7 @@ namespace Models
             get
             {
                 if (_likesList == null)
-                    _likesList = DB.Likes.ToList().Where(l => l.MediaId == Id && l.CommentId == 0).ToList();
+                    _likesList = DB.Likes.ToList().Where(l => l.MediaId == Id).ToList();
                 return _likesList;
             }
         }

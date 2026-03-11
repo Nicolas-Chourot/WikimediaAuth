@@ -15,7 +15,7 @@ namespace Models
         public string Text { get; set; }
 
         [JsonIgnore]
-        public List<Like> Likes => DB.Likes.ToList().Where(l => l.CommentId == Id).ToList();
+        public List<Commentlike> Likes => DB.Commentlikes.ToList().Where(l => l.CommentId == Id).ToList();
 
         [JsonIgnore]
         public string UsersLikesList

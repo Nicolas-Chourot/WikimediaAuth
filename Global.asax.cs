@@ -55,6 +55,10 @@ namespace Wikimedia
             {
                 if (like.User == null || like.Media == null) DB.Likes.Delete(like.Id);
             }
+            foreach (var like in DB.Commentlikes.ToList().Copy())
+            {
+                if (like.User == null || like.Comment == null) DB.Likes.Delete(like.Id);
+            }
             foreach (Models.Comment comment in DB.Comments.ToList().Copy())
             {
                 if (comment.Owner == null || comment.Media == null) DB.RenewPasswordCommands.Delete(comment.Id);

@@ -13,19 +13,19 @@ namespace Models
     {
         public void ToggleComment(int parentId, int userId)
         {
-            Like like = DB.Likes.ToList().FirstOrDefault(l => l.CommentId == parentId && l.UserId == userId);
+            Commentlike like = DB.Commentlikes.ToList().FirstOrDefault(l => l.CommentId == parentId && l.UserId == userId);
             Comment comment = DB.Comments.Get(parentId);
 
             if (like != null)
             {
                 BeginTransaction();
-                DB.Likes.Delete(like.Id);
+                DB.Commentlikes.Delete(like.Id);
                 EndTransaction();
             }
             else
             {
                 BeginTransaction();
-                DB.Likes.Add(new Like
+                DB.Commentlikes.Add(new Commentlike
                 {
                     CommentId = parentId,
                     UserId = userId,
@@ -45,7 +45,7 @@ namespace Models
         public override int Add(Comment data)
         {
             Comment comment = DB.Comments.Get(base.Add(data));
-            comment.Media.ResetCountsCalc();
+            comment.Media?.ResetCountsCalc();
             return comment.Id;
         }
 
@@ -75,7 +75,6 @@ namespace Models
             }
         }
 
-
         public void DeleteCommentByMediaId(int mediaId)
         {
             List<Comment> list = ToList().Where(l => l.MediaId == mediaId && l.ParentId == 0).ToList();
@@ -83,12 +82,11 @@ namespace Models
             {
                 DeleteAllComments(comment.Id);
             }
-           
         }
 
         public void DeleteAllComments(int commentId)
         {
-            DB.Likes.DeleteByCommentId(commentId);
+            DB.Commentlikes.DeleteByCommentId(commentId);
 
             List<Comment> enfants = ToList().Where(c => c.ParentId == commentId).ToList();
             foreach (var enfant in enfants)

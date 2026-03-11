@@ -78,7 +78,7 @@ namespace Controllers
             if (Session["CurrentMediaId"] != null)
             {
                 if (DB.Comments.HasChanged || 
-                    DB.Likes.HasChanged || 
+                    DB.Commentlikes.HasChanged || 
                     forceRefresh)
                 {
                     int mediaId = (int)Session["CurrentMediaId"];
@@ -458,7 +458,7 @@ namespace Controllers
 
         public ActionResult ToggleCommentLike(int id)
         {
-            DB.Comments.ToggleComment(id, Models.User.ConnectedUser.Id);
+            DB.Commentlikes.ToggleLike(id, Models.User.ConnectedUser.Id);
             return null;
         }
 

@@ -128,7 +128,9 @@
     <Compile Include="Models\EmailView.cs" />
     <Compile Include="Models\Event.cs" />
     <Compile Include="Models\EventsRepository.cs" />
+    <Compile Include="Models\Commentlike.cs" />
     <Compile Include="Models\Like.cs" />
+    <Compile Include="Models\CommentLikesRepository.cs" />
     <Compile Include="Models\LikesRepository.cs" />
     <Compile Include="Models\Login.cs" />
     <Compile Include="Models\LoginCredential.cs" />

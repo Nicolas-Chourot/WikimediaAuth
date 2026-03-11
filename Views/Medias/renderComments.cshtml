@@ -17,7 +17,7 @@
                 foreach (var comment in Model)
                 {
                     currentCommentId = comment.Id;
-                    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.CommentId == comment.Id && l.UserId == user.Id));
+                    bool userLike = DAL.DB.Commentlikes.ToList().Exists(l => (l.CommentId == comment.Id && l.UserId == user.Id));
                     string commentLikedByConnectedUser = userLike ? "fa" : "fa-regular";
 
                     <!-- Comment rendering -->
