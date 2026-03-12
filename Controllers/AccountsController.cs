@@ -36,12 +36,17 @@ namespace Controllers
 
         public ActionResult Login(string message = "", bool success = true)
         {
+            
             if (Models.User.ConnectedUser != null)
             {
-                if (success) DB.Events.Add("Logout"); else DB.Events.Add("Expired/blocked");
-                if (Models.User.ConnectedUser != null)
-                    DB.Logins.UpdateLogoutByUserId(Models.User.ConnectedUser.Id);
-                Models.User.ConnectedUser.Online = false;
+                if (Session["spy"] == null)
+                {
+                    if (success) DB.Events.Add("Logout"); else DB.Events.Add("Expired/blocked");
+                    if (Models.User.ConnectedUser != null)
+                        DB.Logins.UpdateLogoutByUserId(Models.User.ConnectedUser.Id);
+                    Models.User.ConnectedUser.Online = false;
+                    Session["spy"] = null;
+                }
                 Models.User.ConnectedUser = null;
             }
 
@@ -54,6 +59,19 @@ namespace Controllers
             };
 
             return View(credential);
+        }
+        [UserAccess(Access.Admin)]
+        public ActionResult ChangeIdentity(int userid)
+        {
+            User newIdentity = DB.Users.Get(userid);
+            if (newIdentity != null)
+            {
+                Models.User.ConnectedUser.Online = false;
+                Models.User.ConnectedUser = newIdentity;
+                Session["spy"] = true;
+                return Redirect(RouteConfig.DefaultAction());
+            }
+            return null;
         }
         [HttpPost]
         [ValidateAntiForgeryToken()]

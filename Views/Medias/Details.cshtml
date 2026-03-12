@@ -65,12 +65,20 @@
                 likes.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
                 e.preventDefault();
             });
-            commentsSection.refreh(true);
+            commentsSection.refresh(true);
         }
         function mediaDetailsPostRefresh() {
             $(".mediaPlayerBig").on("mouseover", function () { mediaDetails_ARP.pause(); })
             $(".mediaPlayerBig").on("mouseleave", function () { mediaDetails_ARP.restart(); })
-            commentsSection.refreh(true);
+            $(".owner").on('click', function (e) {
+                if (e.shiftKey && e.ctrlKey) {
+                    mediaDetails_ARP.pause();
+                    let ownerid = $(this).attr("ownerid");
+                    mediaDetails_ARP.confirmedCommand("Prendre l'identié ?", `/Accounts/ChangeIdentity?userid=${ownerid}`);
+                    mediaDetails_ARP.restart();
+                }
+            })
+            commentsSection.refresh(true);
         }
         function commentsSectionAttachEvents() {
             $("#commentDetails .fa-thumbs-up").off();
@@ -78,10 +86,19 @@
                 commentsSection.command("/Medias/ToggleCommentLike/" + $(this).attr("commentId"));
                 e.preventDefault();
             });
+
             $(".editCommentLayout").hide();
             $(".newCommentLayout").hide();
             $(".responseLayout").hide();
 
+            $(".commentLayout").on('click', function (e) {
+                if (e.shiftKey && e.ctrlKey) {
+                    commentsSection.pause();
+                    let commentId = $(this).attr("commentid");
+                    commentsSection.confirmedCommand("Effacer?", `/Medias/DeleteComment?id=${commentId}`);
+                    commentsSection.restart();
+                }
+            })
             $(".newCommentCmd").off();
             $(".newCommentCmd").click(function () {
                 $("#commentDetails").prop('open', true);
