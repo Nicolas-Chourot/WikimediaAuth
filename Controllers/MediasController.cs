@@ -360,6 +360,7 @@ namespace Controllers
             {
                 Media.Id = id; // patch the Id
                 Media.Shared = sharedCB == "on";
+                Media.OwnerId = storedMedia.OwnerId;
                 Media.PublishDate = storedMedia.PublishDate; // keep orignal PublishDate
                 DB.Medias.Update(Media);
             }
