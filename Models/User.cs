@@ -40,6 +40,7 @@ namespace Models
         [JsonIgnore]
         public bool Online
         {
+            // todo - flush experired session
             // maintain in server cache a list of online users Id
             get
             {
