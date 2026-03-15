@@ -380,8 +380,9 @@ namespace Controllers
                     {
                         DB.Medias.Delete(id);
                         DB.Events.Add("Delete", Media.Title);
+                        return RedirectToAction("List");
                     }
-                    return RedirectToAction("List");
+                   
                 }
             }
             return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
