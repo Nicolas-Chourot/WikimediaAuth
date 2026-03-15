@@ -297,9 +297,9 @@ namespace Controllers
                 bool isOwner = Models.User.ConnectedUser.IsAdmin || Media.OwnerId == Models.User.ConnectedUser.Id;
                 ViewBag.IsOwner = isOwner;
                 Session["CurrentMediaTitle"] = Media.Title;
-                if (Media.Shared || isOwner)
+                //if (Media.Shared || isOwner)
                     return View(Media);
-                return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
+                //return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
             }
             return RedirectToAction("List");
         }

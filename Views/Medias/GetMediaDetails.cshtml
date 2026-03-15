@@ -11,7 +11,7 @@
     {
         <dl>
             <dd>
-                @if (Models.User.ConnectedUser.Id == Model.OwnerId && Model.Shared)
+                @if ((Models.User.ConnectedUser.Id == Model.OwnerId || Models.User.ConnectedUser.IsAdmin) && Model.Shared)
                 {
                     <span style="color:grey">[Partagé]</span>
                 }
