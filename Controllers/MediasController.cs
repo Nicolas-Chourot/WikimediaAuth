@@ -77,8 +77,8 @@ namespace Controllers
         {
             if (Session["CurrentMediaId"] != null)
             {
-                if (DB.Comments.HasChanged || 
-                    DB.Commentlikes.HasChanged || 
+                if (DB.Comments.HasChanged ||
+                    DB.Commentlikes.HasChanged ||
                     forceRefresh)
                 {
                     int mediaId = (int)Session["CurrentMediaId"];
@@ -129,7 +129,7 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
-        public ActionResult GetMediaDetails(bool forceRefresh = false)
+        public ActionResult GetMediaDetails_1(bool forceRefresh = false)
         {
             try
             {
@@ -142,6 +142,22 @@ namespace Controllers
                     return PartialView(Media);
                 }
                 return null;
+            }
+            catch (System.Exception ex)
+            {
+                return Content("Erreur interne" + ex.Message, "text/html");
+            }
+        }
+
+        public ActionResult GetMediaDetails_2(bool forceRefresh = false)
+        {
+            try
+            {
+                InitSessionVariables();
+
+                int mediaId = (int)Session["CurrentMediaId"];
+                Media Media = DB.Medias.Get(mediaId);
+                return PartialView(Media);
             }
             catch (System.Exception ex)
             {
@@ -164,11 +180,11 @@ namespace Controllers
             try
             {
                 IEnumerable<Media> result = null;
-                
-                if (DB.Users.HasChanged || 
-                    DB.Medias.HasChanged || 
-                    DB.Likes.HasChanged || 
-                    DB.Comments.HasChanged || 
+
+                if (DB.Users.HasChanged ||
+                    DB.Medias.HasChanged ||
+                    DB.Likes.HasChanged ||
+                    DB.Comments.HasChanged ||
                     forceRefresh)
                 {
                     InitSessionVariables();
@@ -298,7 +314,7 @@ namespace Controllers
                 ViewBag.IsOwner = isOwner;
                 Session["CurrentMediaTitle"] = Media.Title;
                 //if (Media.Shared || isOwner)
-                    return View(Media);
+                return View(Media);
                 //return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
             }
             return RedirectToAction("List");
@@ -382,7 +398,7 @@ namespace Controllers
                         DB.Events.Add("Delete", Media.Title);
                         return RedirectToAction("List");
                     }
-                   
+
                 }
             }
             return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
@@ -398,6 +414,33 @@ namespace Controllers
             // Response json value true if name is used in other Medias than the current Media
             return Json(DB.Medias.ToList().Where(c => c.YoutubeId == YoutubeId && c.Id != id).Any(),
                         JsonRequestBehavior.AllowGet /* must have for CORS verification by client browser */);
+        }
+        public JsonResult CurrentVideoStillAvailable()
+        {
+            int id = (int)Session["CurrentMediaId"];
+            Media currentMedia = DB.Medias.Get(id);
+            bool available = false;
+            User ConnectedUser = Models.User.ConnectedUser;
+            if (currentMedia != null)
+            {
+                if (ConnectedUser.Access == Access.Admin)
+                {
+                    available = true;
+                }
+                else
+                {
+                    if (currentMedia.Shared)
+                    {
+                        available = true;
+                    }
+                    else
+                    {
+                        if (ConnectedUser.Id == currentMedia.OwnerId)
+                            available = true;
+                    }
+                }
+            }
+            return Json(available, JsonRequestBehavior.AllowGet /* must have for CORS verification by client browser */);
         }
 
         public ActionResult ToggleMediaLike(int id)

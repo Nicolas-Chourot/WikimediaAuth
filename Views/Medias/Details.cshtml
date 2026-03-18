@@ -5,8 +5,16 @@
     User user = Models.User.ConnectedUser;
 }
 
-<div id="detailsPanel" class="detailsPanel">
+<div id="detailsPanel_1" class="detailsPanel">
     <!-- auto refreshed -->
+</div>
+<!-- this video player is outside refreshed panels in order to prevent stoping it each time there is a change in data -->
+<div id="Youtube_Player">
+    <!-- Will be removed if video not available any more if next refresh see ajax request below -->
+    @Helper.YoutubePlayer(Model.YoutubeId)
+</div>
+<div id="detailsPanel_2" class="detailsPanel">
+    <!-- auto refreshed slave of refresh of detailsPanel_1 -->
 </div>
 
 @if (Model != null)
@@ -15,49 +23,53 @@
     bool isVisible = Model.Shared || Models.User.ConnectedUser.IsAdmin || Model.OwnerId == user.Id;
     if (isVisible)
     {
-        <hr />
-        <!-- Create new comment command icon -->
-        <div class="commentFooter ">
-            <h4 style="margin-left:22px;">Commentaires</h4>
-            <div class="commentSubFooter" style="font-size:1em">
-                <i class="newCommentCmd cmdIcon fa-regular fa-comment" style="margin-top:-3px; z-index:1;font-size:1.5em" parentId="0" title="Ajouter un commentaire"></i>
-            </div>
-        </div>
-
-        <details open style="position:relative; top:-40px;" id="commentDetails">
-            <summary style="border: none; background: none; "></summary>
-            <div style="text-align:right; margin-top:1px; padding-right:8px; padding-bottom:4px; ">
-                <i class="cmdIconSmall fa fa-info-circle" title="À propos du Id Youtube" onclick="bootbox.alert(`Aide : <hr />Vous pouvez insérer une image ou un vidéo dans votre commentaire en y inscrivant l'URL. Assurez-vous d'avoir au moins un espace avant et après celui-ci. <br /> `)"> </i>
-            </div>
-            <!-- All comments rendering -->
-            <div class="commentsSection" id="commentsSection"> <!-- auto refreshed --> </div>
-
-            <!-- Hidden programmatically new comment UI -->
-            <div class="newCommentLayout" mediaId="@currentMedia" createCommentparentId="0">
-                <div class="UserSmallAvatar" style="background-image:url('@user.Avatar')" title="@user.Name"></div>
-                <textarea class="form-control" rows="1" placeholder="commenter"></textarea>
-                <div><!--spacer--></div>
-                <div class="editCommentFooter">
-                    <div><!--spacer--></div>
-                    <!-- Commit create command icon -->
-                    <span class="createCommentCmd cmdIconSmall fa fa-check" parentId="0"></span>
-                    <!-- Abort update command icon -->
-                    <span class="abortCreateCommentCmd cmdIconSmall fa fa-times" parentId="0"></span>
+        <div id="CommentsSection">
+            <hr />
+            <!-- Create new comment command icon -->
+            <div class="commentFooter ">
+                <h4 style="margin-left:22px;">Commentaires</h4>
+                <div class="commentSubFooter" style="font-size:1em">
+                    <i class="newCommentCmd cmdIcon fa-regular fa-comment" style="margin-top:-3px; z-index:1;font-size:1.5em" parentId="0" title="Ajouter un commentaire"></i>
                 </div>
             </div>
-        </details>
+
+            <details open style="position:relative; top:-40px;" id="commentDetails">
+                <summary style="border: none; background: none; "></summary>
+                <div style="text-align:right; margin-top:1px; padding-right:8px; padding-bottom:4px; ">
+                    <i class="cmdIconSmall fa fa-info-circle" title="À propos du Id Youtube" onclick="bootbox.alert(`Aide : <hr />Vous pouvez insérer une image ou un vidéo dans votre commentaire en y inscrivant l'URL. Assurez-vous d'avoir au moins un espace avant et après celui-ci. <br /> `)"> </i>
+                </div>
+                <!-- All comments rendering -->
+                <div class="commentsSection" id="commentsSection"> <!-- auto refreshed --> </div>
+
+                <!-- Hidden programmatically new comment UI -->
+                <div class="newCommentLayout" mediaId="@currentMedia" createCommentparentId="0">
+                    <div class="UserSmallAvatar" style="background-image:url('@user.Avatar')" title="@user.Name"></div>
+                    <textarea class="form-control" rows="1" placeholder="commenter"></textarea>
+                    <div><!--spacer--></div>
+                    <div class="editCommentFooter">
+                        <div><!--spacer--></div>
+                        <!-- Commit create command icon -->
+                        <span class="createCommentCmd cmdIconSmall fa fa-check" parentId="0"></span>
+                        <!-- Abort update command icon -->
+                        <span class="abortCreateCommentCmd cmdIconSmall fa fa-times" parentId="0"></span>
+                    </div>
+                </div>
+            </details>
+        </div>
     }
 }
 
 @section Scripts {
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        let mediaDetails_ARP = null;
+        let mediaDetails_ARP1 = null;
+        let mediaDetails_ARP2 = null;
         let likes = null;
         let scrollAnimationSpeed = 1000;
         $(() => {
             newSession(600);
-            mediaDetails_ARP = new AutoRefreshedPanel("detailsPanel", "/Medias/GetMediaDetails", 5, mediaDetailsPostRefresh);
+            mediaDetails_ARP1 = new AutoRefreshedPanel("detailsPanel_1", "/Medias/GetMediaDetails_1", 5, mediaDetailsPostRefresh);
+            mediaDetails_ARP2 = new AutoRefreshedPanel("detailsPanel_2", "/Medias/GetMediaDetails_2", -1);
             likes = new AutoRefreshedPanel("likesPanel", "/Medias/GetMediaLikes", 5, likesPostRefresh);
             commentsSection = new AutoRefreshedPanel("commentsSection", "/Medias/GetComments", 5, commentsSectionAttachEvents);
             //commentsSectionAttachEvents();
@@ -70,17 +82,32 @@
             commentsSection.refresh(true);
         }
         function mediaDetailsPostRefresh() {
-            $(".mediaPlayerBig").on("mouseover", function () { mediaDetails_ARP.pause(); })
-            $(".mediaPlayerBig").on("mouseleave", function () { mediaDetails_ARP.restart(); })
+            mediaDetails_ARP2.refresh(true);
+            HideVideoIfNotAvailable();
             $(".owner").on('click', function (e) {
                 if (e.shiftKey && e.ctrlKey) {
-                    mediaDetails_ARP.pause();
+                    mediaDetails_ARP1.pause();
                     let ownerid = $(this).attr("ownerid");
-                    mediaDetails_ARP.confirmedCommand("Prendre l'identié ?", `/Accounts/ChangeIdentity?userid=${ownerid}`);
-                    mediaDetails_ARP.restart();
+                    mediaDetails_ARP1.confirmedCommand("Prendre l'identité ?", `/Accounts/ChangeIdentity?userid=${ownerid}`);
+                    mediaDetails_ARP1.restart();
                 }
             })
             commentsSection.refresh(true);
+        }
+        function HideVideoIfNotAvailable() {
+            $.ajax({
+                url: "/Medias/CurrentVideoStillAvailable",
+                contentType: "application/json",
+                success: available => {
+                    if (!available) {
+                        $("#Youtube_Player").remove();
+                        $("#detailsPanel_2").remove();
+                        $("#CommentsSection").remove();
+                    }
+                },
+                statusCode: { 401: this.redirect }
+            })
+
         }
         function commentsSectionAttachEvents() {
             $("#commentDetails .fa-thumbs-up").off();

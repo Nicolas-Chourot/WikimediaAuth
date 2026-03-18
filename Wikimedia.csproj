@@ -229,8 +229,9 @@
     <Content Include="Views\Medias\GetMediasOwnersList.cshtml" />
     <None Include="Properties\PublishProfiles\Wikimedia-2026 - Web Deploy.pubxml" />
     <Content Include="Views\Medias\GetMediaLikes.cshtml" />
-    <Content Include="Views\Medias\GetMediaDetails.cshtml" />
+    <Content Include="Views\Medias\GetMediaDetails_2.cshtml" />
     <Content Include="Views\Medias\RenderComments.cshtml" />
+    <Content Include="Views\Medias\GetMediaDetails_1.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
