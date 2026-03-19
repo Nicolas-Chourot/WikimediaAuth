@@ -61,7 +61,26 @@
                 $(".toggleLikeCmd").click(function (e) {
                     mediasListAutoRefreshPanel.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
                     e.preventDefault();
-                });               
+                });
+                $("#moreMediasPanel").remove();
+                $("#MediaListPanel").parent().append($(`
+                    <div id="moreMediasPanel" style="text-align:center; cursor:pointer">
+                    
+                    <span id="moreMediasCMD" style="color:dodgerBlue"> afficher plus </span>
+                    </div>
+                `));
+                $("#moreMediasCMD").on("click", function () {
+                    $.ajax({
+                        url: "/Medias/getNextMediasPage",
+                        dataType: "html",
+                        success: (htmlContent) => {
+                            mediasListAutoRefreshPanel.appendContent(htmlContent);
+                            if (htmlContent !== "")
+                                $("#moreMediasPanel").remove();
+                        },
+                        statusCode: { 401: this.redirect }
+                    })
+                });
             }
 
             function categoriesSelectPostRefresh() {

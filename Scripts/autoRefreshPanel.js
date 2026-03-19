@@ -50,6 +50,15 @@ class AutoRefreshedPanel {
             if (this.postRefreshCallback != null) this.postRefreshCallback();
         }
     }
+    appendContent(htmlContent) {
+        if (htmlContent !== "") {
+            this.storeScrollPosition();
+            $("#" + this.panelId).append(htmlContent);
+            this.restoreScrollPosition();
+            console.log(`Panel ${this.panelId} has been appended.`);
+            if (this.postRefreshCallback != null) this.postRefreshCallback();
+        }
+    }
     redirect() {
         $("#updatingView").hide();
         if (EndSessionAction != "")

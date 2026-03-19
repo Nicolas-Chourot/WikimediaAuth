@@ -28,6 +28,8 @@ namespace Controllers
             if (Session["Categories"] == null) Session["Categories"] = DB.Medias.MediasCategories();
             if (Session["MediaSortBy"] == null) Session["MediaSortBy"] = MediaSortBy.PublishDate;
             if (Session["SortAscending"] == null) Session["SortAscending"] = false;
+            if (Session["position"] == null) Session["position"] = 1;
+            if (Session["pageSize"] == null) Session["pageSize"] = 6;
             ValidateSelectedCategory();
         }
 
@@ -165,6 +167,79 @@ namespace Controllers
             }
         }
 
+        public ActionResult getNextMediasPage()
+        {
+            Session["position"] = (int)Session["position"] + 1;
+            int position = (int)Session["position"];
+            int pageSize = (int)Session["pageSize"];
+            IEnumerable<Media> mediasPage = _getItems(position-1, pageSize);
+            return PartialView(mediasPage);
+        }
+
+        private List<Media> _getItems(int position, int pageSize)
+        {
+            try
+            {
+                IEnumerable<Media> result = null;
+
+                InitSessionVariables();
+                
+                bool search = (bool)Session["Search"];
+                string searchString = (string)Session["SearchString"];
+
+                if (Models.User.ConnectedUser.IsAdmin)
+                    result = DB.Medias.ToList();
+                else
+                    result = DB.Medias.ToList().Where(c => c.Shared || Models.User.ConnectedUser.Id == c.OwnerId);
+
+                if (search)
+                {
+                    result = result.Where(c => c.Title.ToLower().Contains(searchString));
+
+                    string SelectedCategory = (string)Session["SelectedCategory"];
+                    if (SelectedCategory != "")
+                        result = result.Where(c => c.Category == SelectedCategory);
+
+                    int SelectedMediasOwner = (int)Session["SelectedMediasOwner"];
+                    if (SelectedMediasOwner != 0)
+                        result = result.Where(m => m.OwnerId == SelectedMediasOwner);
+                }
+
+
+                if ((bool)Session["SortAscending"])
+                {
+                    switch ((MediaSortBy)Session["MediaSortBy"])
+                    {
+                        case MediaSortBy.Title:
+                            result = result.OrderBy(c => c.Title); break;
+                        case MediaSortBy.PublishDate:
+                            result = result.OrderBy(c => c.PublishDate); break;
+                        case MediaSortBy.Likes:
+                            result = result.OrderBy(c => c.LikesCount); break;
+                    }
+                }
+                else
+                {
+                    switch ((MediaSortBy)Session["MediaSortBy"])
+                    {
+                        case MediaSortBy.Title:
+                            result = result.OrderByDescending(c => c.Title); break;
+                        case MediaSortBy.PublishDate:
+                            result = result.OrderByDescending(c => c.PublishDate); break;
+                        case MediaSortBy.Likes:
+                            result = result.OrderByDescending(c => c.LikesCount); break;
+                        case MediaSortBy.Comments:
+                            result = result.OrderByDescending(c => c.CommentsCount); break;
+                    }
+                }
+                return result.Skip(position*pageSize).Take(pageSize).ToList();
+            }
+            catch (System.Exception ex)
+            {
+                return null;
+            }
+        }
+
         // This action produce a partial view of Medias
         // It is meant to be called by an AJAX request (from client script)
         public ActionResult GetMedias(bool forceRefresh = false)
@@ -179,8 +254,6 @@ namespace Controllers
             */
             try
             {
-                IEnumerable<Media> result = null;
-
                 if (DB.Users.HasChanged ||
                     DB.Medias.HasChanged ||
                     DB.Likes.HasChanged ||
@@ -188,55 +261,10 @@ namespace Controllers
                     forceRefresh)
                 {
                     InitSessionVariables();
-                    bool search = (bool)Session["Search"];
-                    string searchString = (string)Session["SearchString"];
-
-                    if (Models.User.ConnectedUser.IsAdmin)
-                        result = DB.Medias.ToList();
-                    else
-                        result = DB.Medias.ToList().Where(c => c.Shared || Models.User.ConnectedUser.Id == c.OwnerId);
-
-                    if (search)
-                    {
-                        result = result.Where(c => c.Title.ToLower().Contains(searchString));
-
-                        string SelectedCategory = (string)Session["SelectedCategory"];
-                        if (SelectedCategory != "")
-                            result = result.Where(c => c.Category == SelectedCategory);
-
-                        int SelectedMediasOwner = (int)Session["SelectedMediasOwner"];
-                        if (SelectedMediasOwner != 0)
-                            result = result.Where(m => m.OwnerId == SelectedMediasOwner);
-                    }
-
-
-                    if ((bool)Session["SortAscending"])
-                    {
-                        switch ((MediaSortBy)Session["MediaSortBy"])
-                        {
-                            case MediaSortBy.Title:
-                                result = result.OrderBy(c => c.Title); break;
-                            case MediaSortBy.PublishDate:
-                                result = result.OrderBy(c => c.PublishDate); break;
-                            case MediaSortBy.Likes:
-                                result = result.OrderBy(c => c.LikesCount); break;
-                        }
-                    }
-                    else
-                    {
-                        switch ((MediaSortBy)Session["MediaSortBy"])
-                        {
-                            case MediaSortBy.Title:
-                                result = result.OrderByDescending(c => c.Title); break;
-                            case MediaSortBy.PublishDate:
-                                result = result.OrderByDescending(c => c.PublishDate); break;
-                            case MediaSortBy.Likes:
-                                result = result.OrderByDescending(c => c.LikesCount); break;
-                            case MediaSortBy.Comments:
-                                result = result.OrderByDescending(c => c.CommentsCount); break;
-                        }
-                    }
-                    return PartialView(result);
+                    int position = (int)Session["position"];
+                    int pageSize = (int)Session["pageSize"];
+                    int nbItems = position * pageSize;
+                    return PartialView(_getItems(position-1, nbItems));
                 }
                 return null;
             }
@@ -245,6 +273,7 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
+        
 
         public ActionResult List()
         {
@@ -260,11 +289,13 @@ namespace Controllers
         }
         public ActionResult SetMediaSortBy(MediaSortBy mediaSortBy)
         {      // /Medias/SetMediasSortBy?mediaSortBy= 
+            Session["position"] = 1;
             Session["MediaSortBy"] = mediaSortBy;
             return RedirectToAction("List");
         }
         public ActionResult ToggleMediaSort()
         {
+            Session["position"] = 1;
             int mediaSortBy = (int)Session["MediaSortBy"] + 1;
             if (mediaSortBy >= Enum.GetNames(typeof(MediaSortBy)).Length) mediaSortBy = 0;
             Session["MediaSortBy"] = mediaSortBy;
@@ -272,29 +303,28 @@ namespace Controllers
         }
         public ActionResult ToggleSort()
         {
+            Session["position"] = 1;
             Session["SortAscending"] = !(bool)Session["SortAscending"];
             return RedirectToAction("List");
         }
-        public ActionResult SortByDate()
-        {
-            Session["MediaSortBy"] = false;
-            return RedirectToAction("List");
-        }
-
+        
         public ActionResult SetSearchString(string value)
         {
+            Session["position"] = 1;
             Session["SearchString"] = value.ToLower();
             return RedirectToAction("List");
         }
 
         public ActionResult SetSearchCategory(string value)
         {
+            Session["position"] = 1;
             Session["SelectedCategory"] = value;
             return RedirectToAction("List");
         }
 
         public ActionResult SetSearchMediasOwner(int value)
         {
+            Session["position"] = 1;
             Session["SelectedMediasOwner"] = value;
             return RedirectToAction("List");
         }
@@ -331,6 +361,7 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Create(Media Media, string sharedCB = "off")
         {
+            Session["position"] = 1;
             Media.OwnerId = Models.User.ConnectedUser.Id;
             Media.Shared = sharedCB == "on";
             DB.Medias.Add(Media);
@@ -353,6 +384,7 @@ namespace Controllers
                 Media Media = DB.Medias.Get(id);
                 if (Media != null)
                 {
+                   
                     if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
                         return View(Media);
                 }
@@ -374,6 +406,7 @@ namespace Controllers
             Media storedMedia = DB.Medias.Get(id);
             if (storedMedia != null)
             {
+                Session["position"] = 1;
                 Media.Id = id; // patch the Id
                 Media.Shared = sharedCB == "on";
                 Media.OwnerId = storedMedia.OwnerId;
@@ -394,6 +427,7 @@ namespace Controllers
                 {
                     if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
                     {
+                        Session["position"] = 1;
                         DB.Medias.Delete(id);
                         DB.Events.Add("Delete", Media.Title);
                         return RedirectToAction("List");
