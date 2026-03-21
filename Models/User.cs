@@ -44,17 +44,17 @@ namespace Models
             // maintain in server cache a list of online users Id
             get
             {
-                return User.GetOnlineUser().IndexOf(this.Id) > -1;
+                return User.GetOnlineUsers().IndexOf(this.Id) > -1;
             }
             set
             {
                 if (value)
                 {
-                    if (User.GetOnlineUser().IndexOf(this.Id) == -1)
-                        User.GetOnlineUser().Add(this.Id);
+                    if (User.GetOnlineUsers().IndexOf(this.Id) == -1)
+                        User.GetOnlineUsers().Add(this.Id);
                 }
                 else
-                    User.GetOnlineUser().Remove(this.Id);
+                    User.GetOnlineUsers().Remove(this.Id);
             }
         }
         [JsonIgnore]
@@ -101,7 +101,7 @@ namespace Models
         {
             DB.Comments.DeleteByOwnerId(Id);
         }
-        private static List<int> GetOnlineUser()
+        public static List<int> GetOnlineUsers()
         {
             if (HttpRuntime.Cache["onlineUsers"] == null)
                 HttpRuntime.Cache["onlineUsers"] = new List<int>();

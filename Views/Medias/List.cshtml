@@ -55,31 +55,42 @@
                 mediasListAutoRefreshPanel.restart();
             });
 
-            function mediasListPostRefresh() {
-                categoriesSelectAutoRefreshPanel.refresh(true);
-                ownerSelectAutoRefreshPanel.refresh(true);
-                $(".toggleLikeCmd").click(function (e) {
-                    mediasListAutoRefreshPanel.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
-                    e.preventDefault();
-                });
+            function mediasListPostRefresh(fromRefresh = true) {
+                if (fromRefresh) {
+                    categoriesSelectAutoRefreshPanel.refresh(true);
+                    ownerSelectAutoRefreshPanel.refresh(true);
+                    $(".toggleLikeCmd").off();
+                    $(".toggleLikeCmd").click(function (e) {
+                        mediasListAutoRefreshPanel.command("/Medias/ToggleMediaLike/" + $(this).attr("mediaId"));
+                        e.preventDefault();
+                    });
+                }
                 $("#moreMediasPanel").remove();
-                $("#MediaListPanel").parent().append($(`
-                    <div id="moreMediasPanel" style="text-align:center; cursor:pointer">
-                    
-                    <span id="moreMediasCMD" style="color:dodgerBlue"> afficher plus </span>
-                    </div>
-                `));
-                $("#moreMediasCMD").on("click", function () {
-                    $.ajax({
-                        url: "/Medias/getNextMediasPage",
-                        dataType: "html",
-                        success: (htmlContent) => {
-                            mediasListAutoRefreshPanel.appendContent(htmlContent);
-                            if (htmlContent !== "")
-                                $("#moreMediasPanel").remove();
-                        },
-                        statusCode: { 401: this.redirect }
-                    })
+                $.ajax({
+                    url: "/Medias/EndOfMedias",
+                    contentType: 'application/json',
+                    success: (endOfMedias) => {
+                        if (!endOfMedias) {
+                           
+                            $("#MediaListPanel").parent().append($(`
+                            <div id="moreMediasPanel" style="text-align:center; cursor:pointer">
+
+                            <span id="moreMediasCMD" style="color:dodgerBlue"> afficher plus </span>
+                            </div>
+                        `));
+                            $("#moreMediasCMD").on("click", function () {
+                                $.ajax({
+                                    url: "/Medias/getNextMediasPage",
+                                    dataType: "html",
+                                    success: (htmlContent) => {
+                                        mediasListAutoRefreshPanel.appendContent(htmlContent);
+
+                                    },
+                                    statusCode: { 401: this.redirect }
+                                })
+                            });
+                        }
+                    }
                 });
             }
 

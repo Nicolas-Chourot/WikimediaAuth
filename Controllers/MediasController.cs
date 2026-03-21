@@ -2,6 +2,7 @@
 using Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Web.Mvc;
 using static Controllers.AccessControl;
@@ -28,11 +29,16 @@ namespace Controllers
             if (Session["Categories"] == null) Session["Categories"] = DB.Medias.MediasCategories();
             if (Session["MediaSortBy"] == null) Session["MediaSortBy"] = MediaSortBy.PublishDate;
             if (Session["SortAscending"] == null) Session["SortAscending"] = false;
-            if (Session["position"] == null) Session["position"] = 1;
-            if (Session["pageSize"] == null) Session["pageSize"] = 6;
+            if (Session["pageNum"] == null) Session["pageNum"] = 1;
+            if (Session["pageSize"] == null) Session["pageSize"] = 12;
+            if (Session["EndOfMedias"] == null) Session["EndOfMedias"] = false;
             ValidateSelectedCategory();
         }
-
+        private void ResetMediasPaging()
+        {
+            Session["pageNum"] = 1;
+            Session["EndOfMedias"] = false;
+        }
         private void ResetCurrentMediaInfo()
         {
             Session["CurrentMediaId"] = 0;
@@ -167,23 +173,16 @@ namespace Controllers
             }
         }
 
-        public ActionResult getNextMediasPage()
-        {
-            Session["position"] = (int)Session["position"] + 1;
-            int position = (int)Session["position"];
-            int pageSize = (int)Session["pageSize"];
-            IEnumerable<Media> mediasPage = _getItems(position-1, pageSize);
-            return PartialView(mediasPage);
-        }
 
-        private List<Media> _getItems(int position, int pageSize)
+
+        private List<Media> _getItems(int index, int nbItems)
         {
             try
             {
                 IEnumerable<Media> result = null;
 
                 InitSessionVariables();
-                
+
                 bool search = (bool)Session["Search"];
                 string searchString = (string)Session["SearchString"];
 
@@ -232,26 +231,39 @@ namespace Controllers
                             result = result.OrderByDescending(c => c.CommentsCount); break;
                     }
                 }
-                return result.Skip(position*pageSize).Take(pageSize).ToList();
+                if (result.Count() < nbItems + index)
+                {
+                    nbItems = result.Count() - index;
+                    Session["EndOfMedias"] = true;
+                }
+                return result.Skip(index).Take(nbItems).ToList();
             }
             catch (System.Exception ex)
             {
                 return null;
             }
         }
+        public ActionResult getNextMediasPage()
+        {
+            Session["pageNum"] = (int)Session["pageNum"] + 1;
+            int pageNum = (int)Session["pageNum"];
+            int pageSize = (int)Session["pageSize"];
+            IEnumerable<Media> mediasPage = _getItems((pageNum - 1) * pageSize, pageSize);
+            return PartialView("GetMedias", mediasPage);
+        }
+
+        public ActionResult EndOfMedias()
+        {
+            bool EndOfMedias = (bool)Session["EndOfMedias"];
+            return Json(EndOfMedias, JsonRequestBehavior.AllowGet);
+
+        }
 
         // This action produce a partial view of Medias
         // It is meant to be called by an AJAX request (from client script)
         public ActionResult GetMedias(bool forceRefresh = false)
         {
-            /*
-             * resultPage = (from p in context.Posts
-                      orderby p.PostId
-                      select p)
-                     .Skip(position)
-                     .Take(pageSize)
-                     .ToList();
-            */
+
             try
             {
                 if (DB.Users.HasChanged ||
@@ -261,10 +273,9 @@ namespace Controllers
                     forceRefresh)
                 {
                     InitSessionVariables();
-                    int position = (int)Session["position"];
+                    int pageNum = (int)Session["pageNum"];
                     int pageSize = (int)Session["pageSize"];
-                    int nbItems = position * pageSize;
-                    return PartialView(_getItems(position-1, nbItems));
+                    return PartialView(_getItems(0, pageNum * pageSize));
                 }
                 return null;
             }
@@ -273,7 +284,7 @@ namespace Controllers
                 return Content("Erreur interne" + ex.Message, "text/html");
             }
         }
-        
+
 
         public ActionResult List()
         {
@@ -283,19 +294,20 @@ namespace Controllers
 
         public ActionResult ToggleSearch()
         {
+            ResetMediasPaging();
             if (Session["Search"] == null) Session["Search"] = false;
             Session["Search"] = !(bool)Session["Search"];
             return RedirectToAction("List");
         }
         public ActionResult SetMediaSortBy(MediaSortBy mediaSortBy)
         {      // /Medias/SetMediasSortBy?mediaSortBy= 
-            Session["position"] = 1;
+            ResetMediasPaging();
             Session["MediaSortBy"] = mediaSortBy;
             return RedirectToAction("List");
         }
         public ActionResult ToggleMediaSort()
         {
-            Session["position"] = 1;
+            ResetMediasPaging();
             int mediaSortBy = (int)Session["MediaSortBy"] + 1;
             if (mediaSortBy >= Enum.GetNames(typeof(MediaSortBy)).Length) mediaSortBy = 0;
             Session["MediaSortBy"] = mediaSortBy;
@@ -303,28 +315,28 @@ namespace Controllers
         }
         public ActionResult ToggleSort()
         {
-            Session["position"] = 1;
+            ResetMediasPaging();
             Session["SortAscending"] = !(bool)Session["SortAscending"];
             return RedirectToAction("List");
         }
-        
+
         public ActionResult SetSearchString(string value)
         {
-            Session["position"] = 1;
+            ResetMediasPaging();
             Session["SearchString"] = value.ToLower();
             return RedirectToAction("List");
         }
 
         public ActionResult SetSearchCategory(string value)
         {
-            Session["position"] = 1;
+            ResetMediasPaging();
             Session["SelectedCategory"] = value;
             return RedirectToAction("List");
         }
 
         public ActionResult SetSearchMediasOwner(int value)
         {
-            Session["position"] = 1;
+            ResetMediasPaging();
             Session["SelectedMediasOwner"] = value;
             return RedirectToAction("List");
         }
@@ -361,7 +373,7 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Create(Media Media, string sharedCB = "off")
         {
-            Session["position"] = 1;
+            
             Media.OwnerId = Models.User.ConnectedUser.Id;
             Media.Shared = sharedCB == "on";
             DB.Medias.Add(Media);
@@ -384,7 +396,7 @@ namespace Controllers
                 Media Media = DB.Medias.Get(id);
                 if (Media != null)
                 {
-                   
+
                     if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
                         return View(Media);
                 }
@@ -406,7 +418,7 @@ namespace Controllers
             Media storedMedia = DB.Medias.Get(id);
             if (storedMedia != null)
             {
-                Session["position"] = 1;
+                ResetMediasPaging();
                 Media.Id = id; // patch the Id
                 Media.Shared = sharedCB == "on";
                 Media.OwnerId = storedMedia.OwnerId;
@@ -427,7 +439,7 @@ namespace Controllers
                 {
                     if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
                     {
-                        Session["position"] = 1;
+                        ResetMediasPaging();
                         DB.Medias.Delete(id);
                         DB.Events.Add("Delete", Media.Title);
                         return RedirectToAction("List");
