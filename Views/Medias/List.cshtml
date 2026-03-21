@@ -16,7 +16,7 @@
         let mediasListAutoRefreshPanel = null;
         let categoriesSelectAutoRefreshPanel = null;
         let ownerSelectAutoRefreshPanel = null;
-
+        let loadMoreTriggerMargin = 10;
         $(() => {
             newSession(600);
             mediasListAutoRefreshPanel =
@@ -36,6 +36,39 @@
             ownerSelectAutoRefreshPanel = new AutoRefreshedPanel("ownerSelectPanel", "/Medias/GetMediasOwnersList", -1 /* manually refreshed */, ownerSelectPostRefresh);
 
             let keywordsOnchangeTimer = null;
+
+            $("#mainContentPanel").scroll(function () {
+                let scrollPanel = $(this);
+               
+                if ((scrollPanel.scrollTop() + scrollPanel.outerHeight() >= $("#MediaListPanel").outerHeight() - loadMoreTriggerMargin)) {
+                    $.ajax({
+                        url: "/Medias/EndOfMedias",
+                        contentType: 'application/json',
+                        success: (endOfMedias) => {
+                            if (!endOfMedias) {
+                                $.ajax({
+                                    url: "/Medias/EndOfMedias",
+                                    contentType: 'application/json',
+                                    success: (endOfMedias) => {
+                                        if (!endOfMedias) {
+                                            scrollPanel.off();
+                                            $.ajax({
+                                                url: "/Medias/getNextMediasPage",
+                                                dataType: "html",
+                                                success: (htmlContent) => {
+                                                    mediasListAutoRefreshPanel.appendContent(htmlContent);
+                                                    scrollPanel.on();
+                                                },
+                                                statusCode: { 401: this.redirect }
+                                            })
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            })
 
             $("#searchInput").on('keyup', function () {
                 clearTimeout(keywordsOnchangeTimer);
@@ -65,33 +98,6 @@
                         e.preventDefault();
                     });
                 }
-                $("#moreMediasPanel").remove();
-                $.ajax({
-                    url: "/Medias/EndOfMedias",
-                    contentType: 'application/json',
-                    success: (endOfMedias) => {
-                        if (!endOfMedias) {
-                           
-                            $("#MediaListPanel").parent().append($(`
-                            <div id="moreMediasPanel" style="text-align:center; cursor:pointer">
-
-                            <span id="moreMediasCMD" style="color:dodgerBlue"> afficher plus </span>
-                            </div>
-                        `));
-                            $("#moreMediasCMD").on("click", function () {
-                                $.ajax({
-                                    url: "/Medias/getNextMediasPage",
-                                    dataType: "html",
-                                    success: (htmlContent) => {
-                                        mediasListAutoRefreshPanel.appendContent(htmlContent);
-
-                                    },
-                                    statusCode: { 401: this.redirect }
-                                })
-                            });
-                        }
-                    }
-                });
             }
 
             function categoriesSelectPostRefresh() {

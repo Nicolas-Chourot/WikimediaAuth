@@ -303,6 +303,7 @@ namespace Controllers
         {      // /Medias/SetMediasSortBy?mediaSortBy= 
             ResetMediasPaging();
             Session["MediaSortBy"] = mediaSortBy;
+            Session["SortAscending"] = (MediaSortBy)mediaSortBy == MediaSortBy.Title;
             return RedirectToAction("List");
         }
         public ActionResult ToggleMediaSort()
@@ -373,7 +374,7 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Create(Media Media, string sharedCB = "off")
         {
-            
+
             Media.OwnerId = Models.User.ConnectedUser.Id;
             Media.Shared = sharedCB == "on";
             DB.Medias.Add(Media);
