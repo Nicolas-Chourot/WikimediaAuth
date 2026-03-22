@@ -37,9 +37,10 @@
 
             let keywordsOnchangeTimer = null;
 
+            // Load on demand handling (infinite scroll)
             $("#mainContentPanel").scroll(function () {
                 let scrollPanel = $(this);
-               
+                console.log("scroll pos->", scrollPanel.scrollTop())
                 if ((scrollPanel.scrollTop() + scrollPanel.outerHeight() >= $("#MediaListPanel").outerHeight() - loadMoreTriggerMargin)) {
                     $.ajax({
                         url: "/Medias/EndOfMedias",
@@ -51,13 +52,14 @@
                                     contentType: 'application/json',
                                     success: (endOfMedias) => {
                                         if (!endOfMedias) {
-                                            scrollPanel.off();
+                                           
                                             $.ajax({
                                                 url: "/Medias/getNextMediasPage",
                                                 dataType: "html",
                                                 success: (htmlContent) => {
                                                     mediasListAutoRefreshPanel.appendContent(htmlContent);
-                                                    scrollPanel.on();
+                                                    console.log("Appending more data");
+                                                    
                                                 },
                                                 statusCode: { 401: this.redirect }
                                             })
@@ -98,6 +100,19 @@
                         e.preventDefault();
                     });
                 }
+                $(".mediaThumbnail").off();
+                $(".mediaThumbnail").on("click", function () {
+                    let scrollPanel = $("#mainContentPanel");
+                    sessionStorage.setItem("previousScrollPosition", scrollPanel.scrollTop());
+                })
+                let scrollPanel = $("#mainContentPanel");
+                let scrollPos = sessionStorage.getItem("previousScrollPosition");
+                let wasInDetails = sessionStorage.getItem("WasInDetails");
+                // Restore scroll position
+                if (wasInDetails != null && scrollPos != null) {
+                    scrollPanel.scrollTop(parseInt(scrollPos));
+                }
+                sessionStorage.clear("WasInDetails");
             }
 
             function categoriesSelectPostRefresh() {

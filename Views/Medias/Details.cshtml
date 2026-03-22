@@ -68,6 +68,7 @@
         let scrollAnimationSpeed = 1000;
         $(() => {
             newSession(600);
+            sessionStorage.setItem("WasInDetails", "1");
             mediaDetails_ARP1 = new AutoRefreshedPanel("detailsPanel_1", "/Medias/GetMediaDetails_1", 5, mediaDetailsPostRefresh);
             mediaDetails_ARP2 = new AutoRefreshedPanel("detailsPanel_2", "/Medias/GetMediaDetails_2", -1);
             likes = new AutoRefreshedPanel("likesPanel", "/Medias/GetMediaLikes", 5, likesPostRefresh);

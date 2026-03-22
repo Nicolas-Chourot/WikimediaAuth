@@ -245,11 +245,16 @@ namespace Controllers
         }
         public ActionResult getNextMediasPage()
         {
-            Session["pageNum"] = (int)Session["pageNum"] + 1;
-            int pageNum = (int)Session["pageNum"];
-            int pageSize = (int)Session["pageSize"];
-            IEnumerable<Media> mediasPage = _getItems((pageNum - 1) * pageSize, pageSize);
-            return PartialView("GetMedias", mediasPage);
+            bool EndOfMedias = (bool)Session["EndOfMedias"];
+            if (!EndOfMedias)
+            {
+                Session["pageNum"] = (int)Session["pageNum"] + 1;
+                int pageNum = (int)Session["pageNum"];
+                int pageSize = (int)Session["pageSize"];
+                IEnumerable<Media> mediasPage = _getItems((pageNum - 1) * pageSize, pageSize);
+                return PartialView("GetMedias", mediasPage);
+            }
+            return null;
         }
 
         public ActionResult EndOfMedias()
