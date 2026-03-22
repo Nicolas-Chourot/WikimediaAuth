@@ -2,6 +2,7 @@
 using Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Web.Mvc;
@@ -30,7 +31,7 @@ namespace Controllers
             if (Session["MediaSortBy"] == null) Session["MediaSortBy"] = MediaSortBy.PublishDate;
             if (Session["SortAscending"] == null) Session["SortAscending"] = false;
             if (Session["pageNum"] == null) Session["pageNum"] = 1;
-            if (Session["pageSize"] == null) Session["pageSize"] = 12;
+            if (Session["pageSize"] == null) Session["pageSize"] = 60;
             if (Session["EndOfMedias"] == null) Session["EndOfMedias"] = false;
             ValidateSelectedCategory();
         }
@@ -251,6 +252,7 @@ namespace Controllers
                 Session["pageNum"] = (int)Session["pageNum"] + 1;
                 int pageNum = (int)Session["pageNum"];
                 int pageSize = (int)Session["pageSize"];
+                Debug.WriteLine("PageNum: "+pageNum);
                 IEnumerable<Media> mediasPage = _getItems((pageNum - 1) * pageSize, pageSize);
                 return PartialView("GetMedias", mediasPage);
             }

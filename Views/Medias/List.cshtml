@@ -17,6 +17,8 @@
         let categoriesSelectAutoRefreshPanel = null;
         let ownerSelectAutoRefreshPanel = null;
         let loadMoreTriggerMargin = 10;
+        let pauseScrollEvent = false;
+
         $(() => {
             newSession(600);
             mediasListAutoRefreshPanel =
@@ -38,37 +40,37 @@
             let keywordsOnchangeTimer = null;
 
             // Load on demand handling (infinite scroll)
-            $("#mainContentPanel").scroll(function () {
+            $("#mainContentPanel").scroll( function () {
                 let scrollPanel = $(this);
-                console.log("scroll pos->", scrollPanel.scrollTop())
-                if ((scrollPanel.scrollTop() + scrollPanel.outerHeight() >= $("#MediaListPanel").outerHeight() - loadMoreTriggerMargin)) {
-                    $.ajax({
-                        url: "/Medias/EndOfMedias",
-                        contentType: 'application/json',
-                        success: (endOfMedias) => {
-                            if (!endOfMedias) {
-                                $.ajax({
-                                    url: "/Medias/EndOfMedias",
-                                    contentType: 'application/json',
-                                    success: (endOfMedias) => {
-                                        if (!endOfMedias) {
-                                           
-                                            $.ajax({
-                                                url: "/Medias/getNextMediasPage",
-                                                dataType: "html",
-                                                success: (htmlContent) => {
-                                                    mediasListAutoRefreshPanel.appendContent(htmlContent);
-                                                    console.log("Appending more data");
-                                                    
-                                                },
-                                                statusCode: { 401: this.redirect }
-                                            })
+                if (!pauseScrollEvent) {
+                    if ((scrollPanel.scrollTop() + scrollPanel.outerHeight() >= $("#MediaListPanel").outerHeight() - loadMoreTriggerMargin)) {
+                        $.ajax({
+                            url: "/Medias/EndOfMedias",
+                            contentType: 'application/json',
+                            success: (endOfMedias) => {
+                                if (!endOfMedias) {
+                                    $.ajax({
+                                        url: "/Medias/EndOfMedias",
+                                        contentType: 'application/json',
+                                        success: (endOfMedias) => {
+                                            if (!endOfMedias) {
+                                                pauseScrollEvent = true;
+                                                $.ajax({
+                                                    url: "/Medias/getNextMediasPage",
+                                                    dataType: "html",
+                                                    success: (htmlContent) => {
+                                                        mediasListAutoRefreshPanel.appendContent(htmlContent);
+                                                        pauseScrollEvent = false;
+                                                    },
+                                                    statusCode: { 401: this.redirect }
+                                                })
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             })
 
