@@ -9,53 +9,63 @@
     string messageColor = eventSuccess ? "green" : "red";
     string alertIcon = eventSuccess ? "fa-solid fa-circle-exclamation" : "fa-triangle-exclamation";
     ViewBag.PageTitle = "Wikimedia";
+    var loginAttemps = (int)Session["LoginAttempts"];
 }
+
 
 <br />
 @using (Html.BeginForm())
 {
-    @Html.AntiForgeryToken()
-    @Html.HiddenFor(m => m.TimeZoneOffset)
+    if (loginAttemps < 6)
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.TimeZoneOffset)
 
-    <div class="event-form">
+        <div class="event-form">
 
-        @if (eventMessage != "")
-        {
+            @if (eventMessage != "")
+            {
+                <fieldset>
+                    <legend><i class="fa-solid @alertIcon" style="color:@messageColor; font-size:20px;"></i></legend>
+                    <div style="text-align:left !important">
+                        <span style="color:@messageColor">@eventMessage</span>
+                    </div>
+                </fieldset>
+            }
+
             <fieldset>
-                <legend><i class="fa-solid @alertIcon" style="color:@messageColor; font-size:20px;"></i></legend>
-                <div style="text-align:left !important">
-                    <span style="color:@messageColor">@eventMessage</span>
-                </div>
-            </fieldset>
-        }
-
-        <fieldset>
-            <legend>Connexion</legend>
-            <input name="Email" id="Email"
-                   class="form-control Email"
-                   placeholder="Courriel"
-                   required
-                   RequireMessage="Veuillez entrer votre adresse de courriel"
-                   InvalidMessage="Courriel invalide"/>
-            <div class="passwordLayout">
-                <input name="Password" id="Password"
-                       class="form-control"
-                       type="password"
-                       placeholder="Mot de passe"
+                <legend>Connexion</legend>
+                <input name="Email" id="Email"
+                       class="form-control Email"
+                       placeholder="Courriel"
                        required
-                       RequireMessage="Veuillez entrer votre mot de passe" />
-                <i id="toggleShowPassword" class="passwordShowIcon fa fa-eye" title="Afficher/Masquer le mot de passe"></i>
-               
-            </div>
+                       RequireMessage="Veuillez entrer votre adresse de courriel"
+                       InvalidMessage="Courriel invalide" />
+                <div class="passwordLayout">
+                    <input name="Password" id="Password"
+                           class="form-control"
+                           type="password"
+                           placeholder="Mot de passe"
+                           required
+                           RequireMessage="Veuillez entrer votre mot de passe" />
+                    <i id="toggleShowPassword" class="passwordShowIcon fa fa-eye" title="Afficher/Masquer le mot de passe"></i>
 
-            <input id="submit" 
-                   type="submit" 
-                   value="Se connecter..." 
-                   class="btn btn-primary" />
-        </fieldset>
-        @Html.ActionLink("S'enregistrer...", "Subscribe")
-        @Html.ActionLink("Mot de passe oublié...", "RenewPasswordCommand")
-    </div>
+                </div>
+
+                <input id="submit"
+                       type="submit"
+                       value="Se connecter..."
+                       class="btn btn-primary" />
+            </fieldset>
+            @Html.ActionLink("S'enregistrer...", "Subscribe")
+            @Html.ActionLink("Mot de passe oublié...", "RenewPasswordCommand")
+        </div>
+    }
+    else
+    {
+        DAL.DB.Events.Add("Too much login attempts");
+        <h3 style="color:red">Désolé, trop grands nombres d'échecs. Revenez plus tard. </h3>
+    }
 }
 @section Scripts {
 

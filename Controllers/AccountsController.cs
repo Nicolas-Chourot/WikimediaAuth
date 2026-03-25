@@ -4,6 +4,7 @@ using Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.Helpers;
 using System.Web.Mvc;
 using Wikimedia;
 using static Controllers.AccessControl;
@@ -36,7 +37,8 @@ namespace Controllers
 
         public ActionResult Login(string message = "", bool success = true)
         {
-            
+            if (Session["LoginAttempts"] == null) Session["LoginAttempts"] = 0;
+
             if (Models.User.ConnectedUser != null)
             {
                 if (Session["spy"] == null)
@@ -77,6 +79,9 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Login(LoginCredential credential)
         {
+           
+            Session["LoginAttempts"] = (int)Session["LoginAttempts"] + 1;
+
             DateTime serverDate = DateTime.Now;
             int serverTimeZoneOffset = serverDate.Hour - serverDate.ToUniversalTime().Hour;
             Session["TimeZoneOffset"] = -(credential.TimeZoneOffset + serverTimeZoneOffset);
@@ -111,6 +116,7 @@ namespace Controllers
             loginUser.Online = true;
             DB.Logins.Add(Models.User.ConnectedUser.Id);
             DB.Events.Add("Login");
+            Session["LoginAttempts"] = 0;
             return Redirect(RouteConfig.DefaultAction());
         }
         public ActionResult Subscribe()
@@ -123,13 +129,20 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Subscribe(User user, string NotifyCB = "off")
         {
+            user.SetNew();
             user.Notify = NotifyCB == "on";
-            Models.User.ConnectedUser = user;
-            DB.Users.Add(user);
-            Models.User.ConnectedUser = null;
-            DB.Events.Add("Subscribe");
-            AccountsEmailing.SendEmailVerification(Url.Action("VerifyUser", "Accounts", null, Request.Url.Scheme), user);
-            return Redirect("/Accounts/Login?message=Création de compte effectuée avec succès! Un courriel de confirmation d'adresse vous a été envoyé.");
+           
+            if (user.IsValid())
+            {
+                Models.User.ConnectedUser = user;
+                DB.Users.Add(user);
+                Models.User.ConnectedUser = null;
+                DB.Events.Add("Subscribe");
+                AccountsEmailing.SendEmailVerification(Url.Action("VerifyUser", "Accounts", null, Request.Url.Scheme), user);
+                return Redirect("/Accounts/Login?message=Création de compte effectuée avec succès! Un courriel de confirmation d'adresse vous a été envoyé.");
+            }
+            DB.Events.Add("illegal subscribe");
+            return Redirect("/Accounts/Login?message=La création de compte a échouée!&success=false");
         }
         public ActionResult VerifyUser(string code)
         {
@@ -248,34 +261,47 @@ namespace Controllers
                 nothing in playload if not checked
                 "on" if checked 
             */
+            user.Notify = NotifyCB == "on";
 
             DB.Events.Add("EditProfil");
+
             bool newEmail = false;
+
             User connectedUser = Models.User.ConnectedUser;
+
+            // Restore non editable fields from connected user
             user.Id = connectedUser.Id;
             user.Blocked = connectedUser.Blocked;
             user.Access = connectedUser.Access;
             user.Verified = connectedUser.Verified;
-            user.Notify = NotifyCB == "on";
+
             // check password has been changed 
             if (user.Password == (string)Session["CurrentEditingUserPassword"])
+            {
                 user.Password = connectedUser.Password; // no password change
-            // check if Email has been changed
-            if (user.Email != connectedUser.Email)
-            {
-                newEmail = true;
-                AccountsEmailing.SendEmailChangedVerification(Url.Action("VerifyNewEmail", "Accounts", null, Request.Url.Scheme), user);
-                user.Email = connectedUser.Email; // new Email will commited on verification
             }
-            if (DB.Users.Update(user))
+            if (user.IsValid())
             {
-                Models.User.ConnectedUser = DB.Users.Get(user.Id);
-                DB.Notifications.Push(user.Id, "Votre profil a été modifié avec succès!");
+                // check if Email has been changed
+                if (user.Email != connectedUser.Email)
+                {
+                    newEmail = true;
+                    AccountsEmailing.SendEmailChangedVerification(Url.Action("VerifyNewEmail", "Accounts", null, Request.Url.Scheme), user);
+                    user.Email = connectedUser.Email; // new Email will commited on verification
+                }
+                if (DB.Users.Update(user))
+                {
+                    Models.User.ConnectedUser = DB.Users.Get(user.Id);
+                    DB.Notifications.Push(user.Id, "Votre profil a été modifié avec succès!");
+                }
+
+                if (newEmail)
+                    return Redirect("/Accounts/Login?message=Un courriel de vérification d'adresse de courriel vous a été envoyé!");
+                else
+                    return Redirect(RouteConfig.DefaultAction());
             }
-            if (newEmail)
-                return Redirect("/Accounts/Login?message=Un courriel de vérification d'adresse de courriel vous a été envoyé!");
-            else
-                return Redirect(RouteConfig.DefaultAction());
+            DB.Events.Add("Illegal EditProfil");
+            return Redirect("/Accounts/Login?message=Erreur de modification de compte!&success=false");
         }
         [UserAccess(Models.Access.View)]
         public ActionResult DeleteProfil()
@@ -286,7 +312,7 @@ namespace Controllers
             return RedirectToAction("Login?message=Votre compte a été effacé avec succès!");
         }
 
-        [UserAccess(Access.Write)]
+        [UserAccess(Access.Admin)]
         public ActionResult GetUsers(bool forceRefresh = false)
         {
             if (DB.Users.HasChanged || DB.Logins.HasChanged || forceRefresh)
@@ -373,7 +399,6 @@ namespace Controllers
         [UserAccess(Access.Admin)]
         public ActionResult DeleteUser(int id)
         {
-
             if (id != 1)
             {
                 User user = DB.Users.Get(id);

@@ -2,23 +2,30 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Models
 {
     public enum Access { Anonymous, View, Write, Admin }
-    
+
     public class User : Record
     {
         public User()
+        {
+            SetNew();
+            Notify = true;
+        }
+
+        public void SetNew()
         {
             Id = 0;
             Blocked = false;
             Access = Access.View;
             Online = false;
             Verified = false;
-            Notify = true;
         }
+
         #region Data Members
         public string Name { get; set; }
         public string Email { get; set; }
@@ -28,6 +35,15 @@ namespace Models
         public bool Blocked { get; set; }
         public bool Verified { get; set; }
         public bool Notify { get; set; }
+
+        public override bool IsValid()
+        {
+            if (DB.Users.ToList().Where(u => u.Email == Email && u.Id != Id).Any()) return false;
+            if (!IsAlpha(Name)) return false;
+            if (!IsEmail(Email)) return false;
+            if (!HasRequiredLength(Password, 6)) return false;
+            return true;
+        }
 
         const string Avatars_Folder = @"/App_Assets/Users/";
         const string Default_Avatar = @"no_avatar.png";
@@ -69,7 +85,7 @@ namespace Models
 
         [JsonIgnore]
         public List<Login> Logins { get { return DB.Logins.ToList().Where(l => l.UserId == Id).ToList(); } }
-        
+
         [JsonIgnore]
         public List<Like> Likes { get { return DB.Likes.ToList().Where(l => l.UserId == Id).ToList(); } }
 

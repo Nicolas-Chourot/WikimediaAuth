@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0011: Ajouter des accolades
+dotnet_diagnostic.IDE0011.severity = suggestion

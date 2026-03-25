@@ -202,6 +202,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="App_Code\Helper.cshtml" />
+    <Content Include=".editorconfig" />
     <None Include="packages.config" />
     <Content Include="Views\Shared\_header.cshtml" />
     <Content Include="Views\Accounts\Login.cshtml" />

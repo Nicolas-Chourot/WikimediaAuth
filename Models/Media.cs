@@ -19,6 +19,17 @@ namespace Models
         public int OwnerId { get; set; } = 1;
         public bool Shared { get; set; } = true;
         public DateTime PublishDate { get; set; } = DateTime.Now;
+
+        public override bool IsValid()
+        {
+            if (!HasRequiredLength(Title, 1)) return false;
+            if (!HasRequiredLength(Category, 1)) return false;
+            if (!HasRequiredLength(Description, 1)) return false;
+            if (DB.Medias.ToList().Where(m => m.YoutubeId == YoutubeId && m.Id != Id).Any()) return false;
+            return true;
+        }
+        
+        
         [JsonIgnore]
         public User Owner => DB.Users.Get(OwnerId).Copy();
                 

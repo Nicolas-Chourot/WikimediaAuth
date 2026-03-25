@@ -295,7 +295,7 @@ namespace Controllers
                     int pageNum = (int)Session["pageNum"];
                     int pageSize = (int)Session["pageSize"];
                     int firstPageSize = (int)Session["firstPageSize"];
-                    return PartialView(_getItems(0, pageNum > 1 ? (pageNum-1) * pageSize + firstPageSize : firstPageSize)); 
+                    return PartialView(_getItems(0, pageNum > 1 ? (pageNum - 1) * pageSize + firstPageSize : firstPageSize));
                 }
                 return null;
             }
@@ -394,12 +394,16 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Create(Media Media, string sharedCB = "off")
         {
-
-            Media.OwnerId = Models.User.ConnectedUser.Id;
-            Media.Shared = sharedCB == "on";
-            DB.Medias.Add(Media);
-            DB.Events.Add("Create", Media.Title);
-            return RedirectToAction("List");
+            if (Media.IsValid())
+            {
+                Media.OwnerId = Models.User.ConnectedUser.Id;
+                Media.Shared = sharedCB == "on";
+                DB.Medias.Add(Media);
+                DB.Events.Add("Create", Media.Title);
+                return RedirectToAction("List");
+            }
+            DB.Events.Add("Illegal Create Media");
+            return Redirect("/Accounts/Login?message=Erreur de creation de Media!&success=false");
         }
 
         [UserAccess(Models.Access.Write)]
@@ -440,13 +444,22 @@ namespace Controllers
             if (storedMedia != null)
             {
                 ResetMediasPaging();
-                Media.Id = id; // patch the Id
+              
                 Media.Shared = sharedCB == "on";
+
+                // restore non editable fields
+                Media.Id = id; 
                 Media.OwnerId = storedMedia.OwnerId;
-                Media.PublishDate = storedMedia.PublishDate; // keep orignal PublishDate
-                DB.Medias.Update(Media);
+                Media.PublishDate = storedMedia.PublishDate;
+
+                if (Media.IsValid())
+                {
+                    DB.Medias.Update(Media);
+                    return RedirectToAction("Details/" + id);
+                }
             }
-            return RedirectToAction("Details/" + id);
+            DB.Events.Add("Illegal Edit Media");
+            return Redirect("/Accounts/Login?message=Erreur de modification de Media!&success=false");
         }
 
         [UserAccess(Models.Access.Write)]
@@ -465,9 +478,10 @@ namespace Controllers
                         DB.Events.Add("Delete", Media.Title);
                         return RedirectToAction("List");
                     }
-
+                        
                 }
             }
+            DB.Events.Add("Illegal Delete Media");
             return Redirect("/Accounts/Login?message=Accès illégal! &success=false");
         }
 
@@ -525,14 +539,19 @@ namespace Controllers
             int currentMediaId = (int)Session["CurrentMediaId"];
             if (currentMediaId != 0)
             {
-                DB.Comments.Add(new Comment
+                Comment comment = parentId != 0 ? DB.Comments.Get(parentId) : null;
+                if ((parentId != 0 && comment != null) ||
+                    (parentId == 0))
                 {
-                    OwnerId = Models.User.ConnectedUser.Id,
-                    CreationDate = DateTime.Now,
-                    ParentId = parentId,
-                    Text = commentText,
-                    MediaId = currentMediaId
-                });
+                    DB.Comments.Add(new Comment
+                    {
+                        OwnerId = Models.User.ConnectedUser.Id,
+                        CreationDate = DateTime.Now,
+                        ParentId = parentId,
+                        Text = commentText,
+                        MediaId = currentMediaId
+                    });
+                }
             }
             return null;
         }
@@ -546,6 +565,7 @@ namespace Controllers
             {
                 comment.Text = commentText;
                 DB.Comments.Update(comment);
+                
             }
             return null;
         }
@@ -560,12 +580,9 @@ namespace Controllers
                 if (connectedUser.IsAdmin || comment.OwnerId == connectedUser.Id)
                 {
                     DB.Comments.Delete(id);
-                    return null;
                 }
-                else
-                    return Redirect(IllegalAccessUrl);
             }
-            return Redirect(IllegalAccessUrl);
+            return null;
         }
 
         public ActionResult ToggleCommentLike(int id)

@@ -34,5 +34,7 @@ namespace Models
         public User Owner => DB.Users.Get(OwnerId);
         [JsonIgnore]
         public Media Media => DB.Medias.Get(MediaId);
+        [JsonIgnore]
+        public Comment Parent => DB.Comments.Get(ParentId);
     }
 }
