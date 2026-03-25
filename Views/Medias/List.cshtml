@@ -25,7 +25,7 @@
                 new AutoRefreshedPanel(
                     "MediaListPanel",
                     "/Medias/GetMedias",
-                    5,
+                    10,
                     mediasListPostRefresh);
 
             categoriesSelectAutoRefreshPanel =
@@ -39,41 +39,38 @@
 
             let keywordsOnchangeTimer = null;
 
+            let resizeTimer = null;
+            let resizeEndTriggerDelai = 300;
+
+            // install rezise viewport event handler in orther to set Medias/List vue firstpage size
+            $(window).on('resize', function (e) {
+                mediasListAutoRefreshPanel.pause();
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    setCurrentPageLimit(); // defined in _layout.cshtml
+                    mediasListAutoRefreshPanel.restart();
+                    mediasListAutoRefreshPanel.refresh(true);
+                }, resizeEndTriggerDelai);
+            });
+
             // Load on demand handling (infinite scroll)
-            $("#mainContentPanel").scroll( function () {
+            $("#mainContentPanel").scroll(function () {
                 let scrollPanel = $(this);
                 if (!pauseScrollEvent) {
                     if ((scrollPanel.scrollTop() + scrollPanel.outerHeight() >= $("#MediaListPanel").outerHeight() - loadMoreTriggerMargin)) {
+                        pauseScrollEvent = true;
                         $.ajax({
-                            url: "/Medias/EndOfMedias",
-                            contentType: 'application/json',
-                            success: (endOfMedias) => {
-                                if (!endOfMedias) {
-                                    $.ajax({
-                                        url: "/Medias/EndOfMedias",
-                                        contentType: 'application/json',
-                                        success: (endOfMedias) => {
-                                            if (!endOfMedias) {
-                                                pauseScrollEvent = true;
-                                                $.ajax({
-                                                    url: "/Medias/getNextMediasPage",
-                                                    dataType: "html",
-                                                    success: (htmlContent) => {
-                                                        mediasListAutoRefreshPanel.appendContent(htmlContent);
-                                                        pauseScrollEvent = false;
-                                                    },
-                                                    statusCode: { 401: this.redirect }
-                                                })
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                        });
+                            url: "/Medias/getNextMediasPage",
+                            dataType: "html",
+                            success: (htmlContent) => {
+                                mediasListAutoRefreshPanel.appendContent(htmlContent);
+                                pauseScrollEvent = false;
+                            },
+                            statusCode: { 401: this.redirect }
+                        })
                     }
                 }
             })
-
             $("#searchInput").on('keyup', function () {
                 clearTimeout(keywordsOnchangeTimer);
                 /* delay request by 0.5 seconds */
@@ -109,12 +106,12 @@
                 })
                 let scrollPanel = $("#mainContentPanel");
                 let scrollPos = sessionStorage.getItem("previousScrollPosition");
-                let wasInDetails = sessionStorage.getItem("WasInDetails");
+                let RestoreScrollPosition = sessionStorage.getItem("RestoreScrollPosition");
                 // Restore scroll position
-                if (wasInDetails != null && scrollPos != null) {
+                if (RestoreScrollPosition != null && scrollPos != null) {
                     scrollPanel.scrollTop(parseInt(scrollPos));
                 }
-                sessionStorage.clear("WasInDetails");
+                sessionStorage.clear("RestoreScrollPosition");
             }
 
             function categoriesSelectPostRefresh() {

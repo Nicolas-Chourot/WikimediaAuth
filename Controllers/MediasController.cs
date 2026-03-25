@@ -31,7 +31,8 @@ namespace Controllers
             if (Session["MediaSortBy"] == null) Session["MediaSortBy"] = MediaSortBy.PublishDate;
             if (Session["SortAscending"] == null) Session["SortAscending"] = false;
             if (Session["pageNum"] == null) Session["pageNum"] = 1;
-            if (Session["pageSize"] == null) Session["pageSize"] = 60;
+            if (Session["firstPageSize"] == null) Session["firstPageSize"] = 12;
+            if (Session["pageSize"] == null) Session["pageSize"] = 3;
             if (Session["EndOfMedias"] == null) Session["EndOfMedias"] = false;
             ValidateSelectedCategory();
         }
@@ -244,6 +245,14 @@ namespace Controllers
                 return null;
             }
         }
+
+        // /Medias/SetFirstPageSize?pageSize =
+
+        public ActionResult SetFirstPageSize(int pageSize)
+        {
+            Session["firstPageSize"] = pageSize;
+            return null; //  no need to respond
+        }
         public ActionResult getNextMediasPage()
         {
             bool EndOfMedias = (bool)Session["EndOfMedias"];
@@ -252,8 +261,11 @@ namespace Controllers
                 Session["pageNum"] = (int)Session["pageNum"] + 1;
                 int pageNum = (int)Session["pageNum"];
                 int pageSize = (int)Session["pageSize"];
-                Debug.WriteLine("PageNum: "+pageNum);
-                IEnumerable<Media> mediasPage = _getItems((pageNum - 1) * pageSize, pageSize);
+                int firstPageSize = (int)Session["firstPageSize"];
+                Debug.WriteLine("PageNum: " + pageNum);
+                IEnumerable<Media> mediasPage = _getItems(
+                    pageNum == 1 ? 0 : (pageNum - 2) * pageSize + firstPageSize,
+                    pageNum == 1 ? firstPageSize : pageSize);
                 return PartialView("GetMedias", mediasPage);
             }
             return null;
@@ -282,7 +294,8 @@ namespace Controllers
                     InitSessionVariables();
                     int pageNum = (int)Session["pageNum"];
                     int pageSize = (int)Session["pageSize"];
-                    return PartialView(_getItems(0, pageNum * pageSize));
+                    int firstPageSize = (int)Session["firstPageSize"];
+                    return PartialView(_getItems(0, pageNum > 1 ? (pageNum-1) * pageSize + firstPageSize : firstPageSize)); 
                 }
                 return null;
             }

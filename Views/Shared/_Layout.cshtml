@@ -27,10 +27,10 @@
 
         <div id="footerPanel" class="section footerPanel roundedBorder">
             &copy; @DateTime.Now.Year - Application Web
-            <img src="/updatingView.gif" 
-                 style="width:24px; display:none" 
+            <img src="/updatingView.gif"
+                 style="width:24px; display:none"
                  id="updatingView"
-                 title="Rafraichissement de la vue"/>
+                 title="Rafraichissement de la vue" />
         </div>
 
     </div>
@@ -44,10 +44,26 @@
     @Scripts.Render("~/bundles/scripts")
 
     <script>
-     $(() => {
-         if ("@connected" != "False")
-             StartNotificationsHandler();
-     })
+
+        $(() => {
+            if ("@connected" != "False") StartNotificationsHandler();
+            setCurrentPageLimit();
+            
+        });
+
+        function setCurrentPageLimit() {
+            let nbColumns = 3; // at worse there will be 3 medias per row.
+            let nbRows = 4; // default value that will change with windows.resize events
+            let pageSize = nbRows * nbColumns + nbColumns;
+            let mediaLayout = $(".mediaLayout").first();
+            let mcph = $("#mainContentPanel").innerHeight();
+            let mlh = mediaLayout.outerHeight();
+            if (mediaLayout != null) {
+                let nbRows = Math.round($("#mainContentPanel").innerHeight() / mediaLayout.outerHeight());
+                pageSize = nbRows * nbColumns + nbColumns /* make sure to always have a content overflow */;
+            }
+            $.ajax({ url: `/Medias/SetFirstPageSize?pageSize=${pageSize}` });
+        }
     </script>
     <!-- Insertion de script local aux vues -->
     @RenderSection("scripts", required: false)
