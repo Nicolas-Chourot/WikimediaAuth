@@ -21,6 +21,8 @@
 
         $(() => {
             newSession(600);
+            setCurrentPageLimit();
+
             mediasListAutoRefreshPanel =
                 new AutoRefreshedPanel(
                     "MediaListPanel",
@@ -47,12 +49,24 @@
                 mediasListAutoRefreshPanel.pause();
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(() => {
-                    setCurrentPageLimit(); // defined in _layout.cshtml
+                    setCurrentPageLimit(); 
                     mediasListAutoRefreshPanel.restart();
                     mediasListAutoRefreshPanel.refresh(true);
                 }, resizeEndTriggerDelai);
             });
 
+            function setCurrentPageLimit() {
+                let nbColumns = 3; // at worse there will be 3 medias per row.
+                let nbRows = 4; // default value that will change with windows.resize events
+                let pageSize = nbRows * nbColumns + nbColumns;
+                let mediaLayout = $(".mediaLayout").first();
+               
+                if (mediaLayout != null) {
+                    let nbRows = Math.round($("#mainContentPanel").innerHeight() / mediaLayout.outerHeight());
+                    pageSize = nbRows * nbColumns + nbColumns /* make sure to always have a content overflow */;
+                }
+                $.ajax({ url: `/Medias/SetFirstPageSize?pageSize=${pageSize}` });
+            }
             // Load on demand handling (infinite scroll)
             $("#mainContentPanel").scroll(function () {
                 let scrollPanel = $(this);

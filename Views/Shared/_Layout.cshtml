@@ -47,7 +47,7 @@
 
         $(() => {
             if ("@connected" != "False") StartNotificationsHandler();
-            setCurrentPageLimit();
+           
 
             // prevent user to go to previous pages
             window.history.pushState(null, null, window.location.href);
@@ -56,19 +56,7 @@
             };
         });
 
-        function setCurrentPageLimit() {
-            let nbColumns = 3; // at worse there will be 3 medias per row.
-            let nbRows = 4; // default value that will change with windows.resize events
-            let pageSize = nbRows * nbColumns + nbColumns;
-            let mediaLayout = $(".mediaLayout").first();
-            let mcph = $("#mainContentPanel").innerHeight();
-            let mlh = mediaLayout.outerHeight();
-            if (mediaLayout != null) {
-                let nbRows = Math.round($("#mainContentPanel").innerHeight() / mediaLayout.outerHeight());
-                pageSize = nbRows * nbColumns + nbColumns /* make sure to always have a content overflow */;
-            }
-            $.ajax({ url: `/Medias/SetFirstPageSize?pageSize=${pageSize}` });
-        }
+        
     </script>
     <!-- Insertion de script local aux vues -->
     @RenderSection("scripts", required: false)
