@@ -6,7 +6,8 @@
     <option value="0" selected>Tous les usagers</option>
     @foreach (var owner in DAL.DB.Medias.OwnersList())
     {
+        int nbMedias = owner.Medias.Count();
         string selected = selectedOwnerId == owner.Id ? "selected" : "";
-        <option value="@owner.Id" @selected>@owner.Name</option>
+        <option value="@owner.Id" @selected>@owner.Name (@nbMedias)</option>
     }
 </select>
