@@ -9,6 +9,7 @@ namespace DAL
     public class Record
     {
         public int Id { get; set; }
+
         virtual public bool IsValid()
         {
             return true;
@@ -20,7 +21,7 @@ namespace DAL
         }
         public bool HasRequiredLength(string input, int length)
         {
-            return input.Length >= length;
+            return !string.IsNullOrEmpty(input) && input.Length >= length;
         }
         public static bool IsEmail(string input)
         {

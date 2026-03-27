@@ -36,6 +36,13 @@ namespace Models
         public bool Verified { get; set; }
         public bool Notify { get; set; }
 
+
+        const string Avatars_Folder = @"/App_Assets/Users/";
+        const string Default_Avatar = @"no_avatar.png";
+        [ImageAsset(Avatars_Folder, Default_Avatar)]
+        public string Avatar { get; set; } = Avatars_Folder + Default_Avatar;
+
+        #endregion
         public override bool IsValid()
         {
             if (DB.Users.ToList().Where(u => u.Email == Email && u.Id != Id).Any()) return false;
@@ -44,13 +51,6 @@ namespace Models
             if (!HasRequiredLength(Password, 6)) return false;
             return true;
         }
-
-        const string Avatars_Folder = @"/App_Assets/Users/";
-        const string Default_Avatar = @"no_avatar.png";
-        [ImageAsset(Avatars_Folder, Default_Avatar)]
-        public string Avatar { get; set; } = Avatars_Folder + Default_Avatar;
-
-        #endregion
 
         #region View members
         [JsonIgnore]

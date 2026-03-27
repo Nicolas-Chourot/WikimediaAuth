@@ -3,6 +3,8 @@
     ViewBag.PageTitle = "Détails";
     int currentMedia = (int)Session["currentMediaId"];
     User user = Models.User.ConnectedUser;
+    string search = Session["Search"] != null ? ((bool)Session["Search"]).ToString() : false.ToString();
+    string SearchString = Session["SearchString"] != null ? (string)Session["SearchString"] : "";
 }
 
 <div id="detailsPanel_1" class="detailsPanel">
@@ -69,10 +71,10 @@
             newSession(600);
             sessionStorage.setItem("RestoreScrollPosition", "1");
             mediaDetails_ARP1 = new AutoRefreshedPanel("detailsPanel_1", "/Medias/GetMediaDetails_1", 5, mediaDetailsPostRefresh);
-            mediaDetails_ARP2 = new AutoRefreshedPanel("detailsPanel_2", "/Medias/GetMediaDetails_2", -1);
+            mediaDetails_ARP2 = new AutoRefreshedPanel("detailsPanel_2", "/Medias/GetMediaDetails_2", -1, highlightKeyword);
             likes = new AutoRefreshedPanel("likesPanel", "/Medias/GetMediaLikes", 5, likesPostRefresh);
             commentsSection = new AutoRefreshedPanel("commentsSection", "/Medias/GetComments", 5, commentsSectionAttachEvents);
-            //commentsSectionAttachEvents();
+
         })
         function likesPostRefresh() {
             $(".toggleLikeCmd").click(function (e) {
@@ -93,6 +95,22 @@
                 }
             })
             commentsSection.refresh(true);
+            highlightKeyword();
+        }
+        function highlightKeyword() {
+            if ("@search" == "True") {
+                let keyword = "@SearchString";
+                if (keyword.length > 0) {
+                     let titles = document.getElementsByClassName('mediaTitle');
+                     Array.from(titles).forEach(title => {
+                         highlight(keyword, title);
+                     });
+                     let descriptions = document.getElementsByClassName('mediaDescription');
+                     Array.from(descriptions).forEach(description => {
+                         highlight(keyword, description);
+                     })
+                }
+            }
         }
         function HideVideoIfNotAvailable() {
             $.ajax({

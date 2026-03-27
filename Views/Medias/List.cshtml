@@ -1,10 +1,7 @@
-﻿@{ ViewBag.PageTitle = "Wikimedia"; }
-
-<!--
-    The content of this view rely on the one produced
-    by the /Contacts/GetContacts action that call
-    Views/Contacts/GetContacts.cshtml partial view
--->
+﻿@{
+    ViewBag.PageTitle = "Wikimedia";
+    string search = Session["Search"] != null ? ((bool)Session["Search"]).ToString() : false.ToString();
+}
 
 <div id="MediaListPanel" class="mediaListLayout">
     <!-- Periodicaly refreshed by object contactListPanel of class AutoRefreshedPanel -->
@@ -21,7 +18,6 @@
 
         $(() => {
             newSession(600);
-            setCurrentPageLimit();
 
             mediasListAutoRefreshPanel =
                 new AutoRefreshedPanel(
@@ -49,7 +45,7 @@
                 mediasListAutoRefreshPanel.pause();
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(() => {
-                    setCurrentPageLimit(); 
+                    setCurrentPageLimit();
                     mediasListAutoRefreshPanel.restart();
                     mediasListAutoRefreshPanel.refresh(true);
                 }, resizeEndTriggerDelai);
@@ -60,7 +56,7 @@
                 let nbRows = 4; // default value that will change with windows.resize events
                 let pageSize = nbRows * nbColumns + nbColumns;
                 let mediaLayout = $(".mediaLayout").first();
-               
+
                 if (mediaLayout != null) {
                     let nbRows = Math.round($("#mainContentPanel").innerHeight() / mediaLayout.outerHeight());
                     pageSize = nbRows * nbColumns + nbColumns /* make sure to always have a content overflow */;
@@ -126,6 +122,19 @@
                     scrollPanel.scrollTop(parseInt(scrollPos));
                 }
                 sessionStorage.clear("RestoreScrollPosition");
+                highlightKeyword();
+            }
+
+            function highlightKeyword() {
+                if ("@search" == "True") {
+                    let keyword = $("#searchInput").val();
+                    if (keyword.length > 0) {
+                        let titles = document.getElementsByClassName('mediaTitle');
+                        Array.from(titles).forEach(title => {
+                            highlight(keyword, title);
+                        })
+                    }
+                }
             }
 
             function categoriesSelectPostRefresh() {

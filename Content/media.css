@@ -146,3 +146,8 @@ divx {
 .contentImage {
     width: 100%;
 }
+
+.highlight {
+    background-color: yellow;
+}
+  

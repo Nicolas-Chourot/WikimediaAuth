@@ -195,7 +195,7 @@ namespace Controllers
 
                 if (search)
                 {
-                    result = result.Where(c => c.Title.ToLower().Contains(searchString));
+                    result = result.Where(c => (c.Title.ToLower() + c.Description.ToLower()).Contains(searchString));
 
                     string SelectedCategory = (string)Session["SelectedCategory"];
                     if (SelectedCategory != "")
@@ -217,6 +217,8 @@ namespace Controllers
                             result = result.OrderBy(c => c.PublishDate); break;
                         case MediaSortBy.Likes:
                             result = result.OrderBy(c => c.LikesCount); break;
+                        case MediaSortBy.Comments:
+                            result = result.OrderBy(c => c.CommentsCount); break;
                     }
                 }
                 else
@@ -443,7 +445,6 @@ namespace Controllers
             Media storedMedia = DB.Medias.Get(id);
             if (storedMedia != null)
             {
-                ResetMediasPaging();
               
                 Media.Shared = sharedCB == "on";
 
@@ -473,7 +474,6 @@ namespace Controllers
                 {
                     if (Media.OwnerId == Models.User.ConnectedUser.Id || Models.User.ConnectedUser.IsAdmin)
                     {
-                        ResetMediasPaging();
                         DB.Medias.Delete(id);
                         DB.Events.Add("Delete", Media.Title);
                         return RedirectToAction("List");

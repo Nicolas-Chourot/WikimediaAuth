@@ -69,7 +69,6 @@ namespace Wikimedia
             }
             foreach (Models.Media media in DB.Medias.ToList().Copy())
             {
-                //if (media.Owner == null) DB.Medias.Delete(media.Id);
                 if (media.Owner == null)
                 {
                     media.OwnerId = 1;
