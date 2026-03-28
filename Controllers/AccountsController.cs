@@ -79,7 +79,7 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Login(LoginCredential credential)
         {
-           
+            if (Session["LoginAttempts"] == null) Session["LoginAttempts"] = 0;
             Session["LoginAttempts"] = (int)Session["LoginAttempts"] + 1;
 
             DateTime serverDate = DateTime.Now;

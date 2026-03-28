@@ -18,7 +18,7 @@
 
         $(() => {
             newSession(600);
-
+            setCurrentPageLimit();
             mediasListAutoRefreshPanel =
                 new AutoRefreshedPanel(
                     "MediaListPanel",
@@ -56,9 +56,13 @@
                 let nbRows = 4; // default value that will change with windows.resize events
                 let pageSize = nbRows * nbColumns + nbColumns;
                 let mediaLayout = $(".mediaLayout").first();
+                let mediaDefaultOuterHeight = 240;
 
                 if (mediaLayout != null) {
-                    let nbRows = Math.round($("#mainContentPanel").innerHeight() / mediaLayout.outerHeight());
+                    if (mediaLayout.outerHeight() != undefined) {
+                        mediaDefaultOuterHeight = mediaLayout.outerHeight();
+                    }
+                    let nbRows = Math.round($("#mainContentPanel").innerHeight() / mediaDefaultOuterHeight);
                     pageSize = nbRows * nbColumns + nbColumns /* make sure to always have a content overflow */;
                 }
                 $.ajax({ url: `/Medias/SetFirstPageSize?pageSize=${pageSize}` });
