@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.EnterpriseServices;
 using System.IO;
 using System.Linq;
@@ -142,7 +143,15 @@ namespace DAL
         }
         public bool IsMarkedChanged
         {
-            get { return ((string)HttpContext.Current.Session[this.GetType().Name] != _SerialNumber); }
+            get
+            {
+                string name = this.GetType().Name;
+                string sn = (string)HttpContext.Current.Session[this.GetType().Name];
+                //Debug.WriteLine(name + " " + sn + " " + _SerialNumber + (sn != _SerialNumber).ToString());
+                if (string.IsNullOrEmpty(sn))
+                    HttpContext.Current.Session[name] = _SerialNumber;
+                return ((string)HttpContext.Current.Session[name] != _SerialNumber);
+            }
         }
         public void BeginTransaction()
         {
