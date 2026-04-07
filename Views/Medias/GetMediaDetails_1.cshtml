@@ -3,8 +3,6 @@
 @if (Model != null)
 {
     int connectedId = Models.User.ConnectedUser.Id;
-    bool userLike = DAL.DB.Likes.ToList().Exists(l => (l.MediaId == Model.Id && l.UserId == connectedId));
-    string mediaLikedByConnectedUser = userLike ? "fa" : "fa-regular";
     bool isVisible = Model.Shared || Models.User.ConnectedUser.IsAdmin || Model.OwnerId == connectedId;
 
     if (isVisible)
