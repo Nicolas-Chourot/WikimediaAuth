@@ -36,8 +36,10 @@ namespace Models
             Media media = Get(Id);
             if (media != null)
             {
+                BeginTransaction();
                 media.DeleteLikes();
                 DB.Comments.DeleteCommentByMediaId(Id);
+                EndTransaction();
             }
             return base.Delete(Id);
         }

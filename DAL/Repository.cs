@@ -155,27 +155,33 @@ namespace DAL
         }
         public void BeginTransaction()
         {
+            Debug.Write(this.GetType().Name + " --> ");
             if (!TransactionOnGoing) // todo check if nested transactions still work
             {
                 mutex.WaitOne();
                 TransactionOnGoing = true;
+                Debug.WriteLine("Begin Transaction");
             }
             else
             {
                 NestedTransactionsCount++;
+                Debug.WriteLine("Stack Transaction " + NestedTransactionsCount);
             }
         }
         public void EndTransaction()
         {
+            Debug.Write(this.GetType().Name + " <-- ");
             if (NestedTransactionsCount <= 0)
             {
                 TransactionOnGoing = false;
                 mutex.ReleaseMutex();
+                Debug.WriteLine("End Transaction");
             }
             else
             {
                 if (NestedTransactionsCount > 0)
                     NestedTransactionsCount--;
+                Debug.WriteLine("Unstack Transaction " + NestedTransactionsCount);
             }
         }
         // Init : reçoit le chemin d'accès absolue du fichier JSON
